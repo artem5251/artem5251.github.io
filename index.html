@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мои Игры - Artem5251</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 40px 0;
+        }
+
+        h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .tabs {
+            display: flex;
+            justify-content: center;
+            margin: 30px 0;
+            gap: 20px;
+        }
+
+        .tab-btn {
+            padding: 15px 30px;
+            background: rgba(255,255,255,0.1);
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 25px;
+            color: white;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .tab-btn:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateY(-2px);
+        }
+
+        .tab-btn.active {
+            background: rgba(255,255,255,0.3);
+            border-color: white;
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-top: 20px;
+        }
+
+        .game-card {
+            background: rgba(255,255,255,0.1);
+            border-radius: 20px;
+            padding: 25px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            transition: transform 0.3s ease;
+        }
+
+        .game-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .game-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 20px;
+            object-fit: cover;
+            margin-bottom: 15px;
+            border: 3px solid white;
+        }
+
+        .game-title {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+            color: white;
+            text-transform: capitalize;
+        }
+
+        .game-description {
+            color: rgba(255,255,255,0.8);
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .download-btn {
+            display: inline-block;
+            padding: 12px 30px;
+            background: linear-gradient(45deg, #FF6B6B, #FF8E53);
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(255,107,107,0.4);
+        }
+
+        .download-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(255,107,107,0.6);
+        }
+
+        .file-size {
+            display: block;
+            margin-top: 8px;
+            font-size: 0.9em;
+            color: rgba(255,255,255,0.7);
+        }
+
+        .empty-section {
+            text-align: center;
+            padding: 60px 20px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .empty-section h3 {
+            font-size: 1.8em;
+            margin-bottom: 15px;
+        }
+
+        .coming-soon {
+            font-size: 5em;
+            margin-bottom: 20px;
+        }
+
+        .download-status {
+            margin-top: 10px;
+            padding: 10px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            font-size: 0.9em;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 768px) {
+            .tabs {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .tab-btn {
+                width: 200px;
+            }
+            
+            h1 {
+                font-size: 2em;
+            }
+            
+            .games-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎮 Мои Игры</h1>
+            <p class="subtitle">Добро пожаловать в мир моих разработок!</p>
+        </header>
+
+        <div class="tabs">
+            <button class="tab-btn active" onclick="openTab('vr')">🎯 VR Игры</button>
+            <button class="tab-btn" onclick="openTab('mobile')">📱 Мобильные Игры</button>
+        </div>
+
+        <!-- Раздел VR игр -->
+        <div id="vr" class="tab-content active">
+            <div class="games-grid" id="vr-games">
+                <!-- Игры будут добавляться автоматически -->
+            </div>
+        </div>
+
+        <!-- Раздел мобильных игр -->
+        <div id="mobile" class="tab-content">
+            <div class="games-grid" id="mobile-games">
+                <!-- Игры будут добавляться автоматически -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Конфигурация игр
+        const gamesConfig = {
+            vr: [
+                {
+                    name: "two-gorillas",
+                    displayName: "Two Gorillas",
+                    description: "Захватывающая VR игра о двух гориллах в эпическом приключении. Исследуйте джунгли, решайте головоломки и сражайтесь с врагами в виртуальной реальности!",
+                    apkFile: "games/vr/two-gorillas.apk",
+                    imageFile: "games/vr/two-gorillas.jpg"
+                }
+                // Добавляйте новые игры здесь
+            ],
+            mobile: [
+                // Мобильные игры будут добавляться автоматически
+            ]
+        };
+
+        function openTab(tabName) {
+            const tabContents = document.querySelectorAll('.tab-content');
+            tabContents.forEach(tab => tab.classList.remove('active'));
+            
+            const tabBtns = document.querySelectorAll('.tab-btn');
+            tabBtns.forEach(btn => btn.classList.remove('active'));
+            
+            document.getElementById(tabName).classList.add('active');
+            event.currentTarget.classList.add('active');
+        }
+
+        function createGameCard(game, category) {
+            const card = document.createElement('div');
+            card.className = 'game-card';
+            
+            card.innerHTML = `
+                <img src="${game.imageFile}" alt="${game.displayName}" class="game-avatar" 
+                     onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIwIiBoZWlnaHQ9IjEyMCIgdmlld0JveD0iMCAwIDEyMCAxMjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxMjAiIGhlaWdodD0iMTIwIiByeD0iMjAiIGZpbGw9IiM2NjdlZWEiLz4KPHRleHQgeD0iNjAiIHk9IjYwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSJ3aGl0ZSIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjE0Ij4kZ2FtZS5kaXNwbGF5TmFtZS5jaGFyQXQoMCl8dXBwZXJDYXNlPC90ZXh0Pgo8L3N2Zz4K'">
+                <h3 class="game-title">${game.displayName}</h3>
+                <p class="game-description">${game.description}</p>
+                <a href="${game.apkFile}" class="download-btn" download onclick="trackDownload('${game.name}')">
+                    📥 Скачать APK
+                    <span class="file-size" id="size-${game.name}">(загрузка размера...)</span>
+                </a>
+                <div class="download-status" id="status-${game.name}"></div>
+            `;
+            
+            return card;
+        }
+
+        function loadGames() {
+            // Загружаем VR игры
+            const vrContainer = document.getElementById('vr-games');
+            gamesConfig.vr.forEach(game => {
+                const card = createGameCard(game, 'vr');
+                vrContainer.appendChild(card);
+                getFileSize(game.apkFile, game.name);
+            });
+
+            // Загружаем мобильные игры
+            const mobileContainer = document.getElementById('mobile-games');
+            if (gamesConfig.mobile.length === 0) {
+                mobileContainer.innerHTML = `
+                    <div class="empty-section">
+                        <div class="coming-soon">📱</div>
+                        <h3>Скоро здесь появятся мобильные игры!</h3>
+                        <p>В этом разделе скоро будут доступны игры для Android и iOS</p>
+                    </div>
+                `;
+            } else {
+                gamesConfig.mobile.forEach(game => {
+                    const card = createGameCard(game, 'mobile');
+                    mobileContainer.appendChild(card);
+                    getFileSize(game.apkFile, game.name);
+                });
+            }
+        }
+
+        function getFileSize(filePath, gameName) {
+            fetch(filePath, { method: 'HEAD' })
+                .then(response => {
+                    const size = response.headers.get('content-length');
+                    if (size) {
+                        const sizeMB = (size / (1024 * 1024)).toFixed(1);
+                        document.getElementById(`size-${gameName}`).textContent = `(${sizeMB} MB)`;
+                    }
+                })
+                .catch(() => {
+                    document.getElementById(`size-${gameName}`).textContent = '(размер неизвестен)';
+                });
+        }
+
+        function trackDownload(gameName) {
+            const statusElement = document.getElementById(`status-${gameName}`);
+            statusElement.innerHTML = '✅ Скачивание началось...';
+            
+            setTimeout(() => {
+                statusElement.innerHTML = '📊 Скачивание в процессе...';
+            }, 1000);
+            
+            setTimeout(() => {
+                statusElement.innerHTML = '🎉 Скачивание завершено! Установите APK файл.';
+            }, 3000);
+        }
+
+        // Автоматическое определение игр из структуры папок
+        function autoDiscoverGames() {
+            // В будущем можно добавить автоматическое сканирование папок
+            // через GitHub API или при сборке сайта
+            console.log('Автоопределение игр...');
+        }
+
+        // Загружаем игры при старте
+        document.addEventListener('DOMContentLoaded', loadGames);
+    </script>
+</body>
+</html>
