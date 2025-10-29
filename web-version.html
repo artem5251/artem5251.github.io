@@ -1,0 +1,1454 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZIMA OS Desktop</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #DCEEFF 0%, #A0D1FF 50%, #7BB8FF 100%);
+            height: 100vh;
+            overflow: hidden;
+            color: #2C5F8F;
+        }
+
+        .desktop {
+            height: 100vh;
+            position: relative;
+        }
+
+        /* Иконки на рабочем столе */
+        .desktop-icons {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            z-index: 1;
+        }
+
+        .icon {
+            width: 80px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            padding: 12px;
+            border-radius: 12px;
+        }
+
+        .icon:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .icon-img {
+            width: 56px;
+            height: 56px;
+            margin: 0 auto 8px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.8) 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .icon:hover .icon-img {
+            transform: scale(1.1);
+            background: linear-gradient(135deg, #ffffff 0%, #f0f8ff 100%);
+        }
+
+        .icon-text {
+            font-size: 13px;
+            color: #2C5F8F;
+            font-weight: 600;
+        }
+
+        /* Окна приложений */
+        .window {
+            position: absolute;
+            width: 900px;
+            height: 650px;
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 18px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            overflow: hidden;
+            display: none;
+            z-index: 100;
+            opacity: 0;
+            transform: scale(0.9) translateY(20px);
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .window.active {
+            display: block;
+            opacity: 1;
+            transform: scale(1) translateY(0);
+        }
+
+        .window-header {
+            background: linear-gradient(135deg, #A0D1FF 0%, #7BB8FF 100%);
+            padding: 15px 25px;
+            color: white;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 16px;
+            user-select: none;
+            cursor: move;
+        }
+
+        .window-controls {
+            display: flex;
+            gap: 12px;
+        }
+
+        .control-btn {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .control-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .close { background: #FF5F57; }
+        .minimize { background: #FFBD2E; }
+        .maximize { background: #28CA42; }
+
+        .window-content {
+            height: calc(100% - 50px);
+            overflow: hidden;
+        }
+
+        /* Стили для браузера */
+        .browser-content {
+            padding: 25px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            background: linear-gradient(135deg, #f8fbff 0%, #e6f3ff 100%);
+        }
+
+        .browser-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+        }
+
+        .browser-search {
+            width: 100%;
+            max-width: 600px;
+            margin: 20px 0;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 15px 25px;
+            border: 2px solid #A0D1FF;
+            border-radius: 30px;
+            font-size: 16px;
+            outline: none;
+            box-shadow: 0 4px 15px rgba(160, 209, 255, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            border-color: #7BB8FF;
+            box-shadow: 0 6px 20px rgba(123, 184, 255, 0.4);
+        }
+
+        .search-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 15px;
+        }
+
+        .search-btn {
+            padding: 12px 25px;
+            background: linear-gradient(135deg, #7BB8FF 0%, #4A9CFF 100%);
+            border: none;
+            border-radius: 20px;
+            color: white;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .search-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(123, 184, 255, 0.4);
+        }
+
+        .quick-links {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-top: 30px;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .quick-link {
+            padding: 20px;
+            background: white;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            text-align: center;
+        }
+
+        .quick-link:hover {
+            transform: translateY(-5px);
+            border-color: #7BB8FF;
+            box-shadow: 0 8px 25px rgba(123, 184, 255, 0.2);
+        }
+
+        .link-icon {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .web-content {
+            width: 100%;
+            height: 100%;
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+            text-align: left;
+            display: none;
+        }
+
+        .web-content.active {
+            display: block;
+        }
+
+        /* Стили для файлового менеджера */
+        .files-content {
+            padding: 20px;
+            height: calc(100% - 50px);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .files-toolbar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e6f3ff;
+        }
+
+        .files-btn {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #7BB8FF 0%, #4A9CFF 100%);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .files-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .file-list-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px;
+            margin: -10px;
+        }
+
+        .file-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            gap: 15px;
+        }
+
+        .file-item {
+            text-align: center;
+            padding: 20px 15px;
+            background: rgba(160, 209, 255, 0.1);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        .file-item:hover {
+            background: rgba(160, 209, 255, 0.2);
+            transform: translateY(-5px);
+            border-color: #7BB8FF;
+        }
+
+        .file-item.selected {
+            background: rgba(123, 184, 255, 0.3);
+            border-color: #4A9CFF;
+        }
+
+        .file-icon {
+            font-size: 36px;
+            margin-bottom: 10px;
+        }
+
+        .file-name {
+            font-size: 12px;
+            font-weight: 600;
+            color: #2C5F8F;
+            word-break: break-word;
+            max-width: 100px;
+        }
+
+        .file-context-menu {
+            position: absolute;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            padding: 8px 0;
+            z-index: 1000;
+            display: none;
+        }
+
+        .context-item {
+            padding: 10px 20px;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .context-item:hover {
+            background: #f0f8ff;
+        }
+
+        /* Стили для терминала */
+        .terminal-content {
+            background: #1a1a1a;
+            color: #00ff00;
+            height: 100%;
+            padding: 20px;
+            font-family: 'Courier New', monospace;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .terminal-output {
+            flex: 1;
+            overflow-y: auto;
+            margin-bottom: 10px;
+        }
+
+        .terminal-line {
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+
+        .terminal-prompt {
+            color: #7BB8FF;
+            font-weight: bold;
+        }
+
+        .terminal-input-line {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .terminal-input {
+            background: transparent;
+            border: none;
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            outline: none;
+            flex: 1;
+        }
+
+        .command-output {
+            color: #cccccc;
+            margin-left: 20px;
+        }
+
+        /* Стили для настроек */
+        .settings-content {
+            padding: 25px;
+            height: 100%;
+            overflow-y: auto;
+            background: linear-gradient(135deg, #f8fbff 0%, #e6f3ff 100%);
+        }
+
+        .settings-category {
+            margin-bottom: 30px;
+        }
+
+        .settings-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #2C5F8F;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .settings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+        }
+
+        .setting-item {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .setting-item:hover {
+            border-color: #7BB8FF;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(123, 184, 255, 0.2);
+        }
+
+        .setting-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+
+        .setting-icon {
+            font-size: 24px;
+        }
+
+        .setting-name {
+            font-weight: 600;
+            color: #2C5F8F;
+        }
+
+        .setting-desc {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.4;
+        }
+
+        /* Меню Пуск */
+        .start-menu {
+            position: absolute;
+            bottom: 75px;
+            left: 25px;
+            width: 400px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 18px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            display: none;
+            z-index: 10000;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .start-menu.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .start-header {
+            background: linear-gradient(135deg, #A0D1FF 0%, #7BB8FF 100%);
+            padding: 25px;
+            color: white;
+        }
+
+        .start-user {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .start-status {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .start-apps {
+            padding: 20px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+
+        .start-app {
+            text-align: center;
+            padding: 15px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .start-app:hover {
+            background: rgba(160, 209, 255, 0.2);
+            transform: scale(1.05);
+        }
+
+        .start-app-icon {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+
+        .start-app-name {
+            font-size: 12px;
+            font-weight: 600;
+            color: #2C5F8F;
+        }
+
+        .start-footer {
+            padding: 15px 25px;
+            background: rgba(160, 209, 255, 0.1);
+            border-top: 1px solid rgba(160, 209, 255, 0.3);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .power-btn {
+            padding: 8px 16px;
+            background: linear-gradient(135deg, #FF6B6B 0%, #FF8E8E 100%);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .power-btn:hover {
+            transform: scale(1.05);
+        }
+
+        /* Уведомления */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #4A9CFF 0%, #7BB8FF 100%);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            z-index: 10000;
+            transform: translateX(400px);
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        /* Панель задач */
+        .taskbar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 65px;
+            background: rgba(160, 209, 255, 0.85);
+            backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(255, 255, 255, 0.5);
+            display: flex;
+            align-items: center;
+            padding: 0 25px;
+            gap: 20px;
+            box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+        }
+
+        .start-btn {
+            background: linear-gradient(135deg, #7BB8FF 0%, #4A9CFF 100%);
+            border: none;
+            border-radius: 15px;
+            padding: 14px 24px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 20px rgba(123, 184, 255, 0.4);
+        }
+
+        .start-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .taskbar-apps {
+            display: flex;
+            gap: 12px;
+            flex-grow: 1;
+        }
+
+        .taskbar-app {
+            padding: 12px 18px;
+            background: rgba(255, 255, 255, 0.25);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .taskbar-app.active {
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        .taskbar-app:hover {
+            background: rgba(255, 255, 255, 0.4);
+            transform: translateY(-2px);
+        }
+
+        /* Стили для скроллбара */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(160, 209, 255, 0.1);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #7BB8FF;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="desktop">
+        <!-- Иконки рабочего стола -->
+        <div class="desktop-icons">
+            <div class="icon" data-app="files">
+                <div class="icon-img">📁</div>
+                <div class="icon-text">Файлы</div>
+            </div>
+            <div class="icon" data-app="browser">
+                <div class="icon-img">🌐</div>
+                <div class="icon-text">Браузер</div>
+            </div>
+            <div class="icon" data-app="terminal">
+                <div class="icon-img">💻</div>
+                <div class="icon-text">Терминал</div>
+            </div>
+            <div class="icon" data-app="settings">
+                <div class="icon-img">⚙️</div>
+                <div class="icon-text">Настройки</div>
+            </div>
+        </div>
+
+        <!-- Окно файлового менеджера -->
+        <div class="window" id="files-window">
+            <div class="window-header">
+                <span>📁 Файловый менеджер</span>
+                <div class="window-controls">
+                    <div class="control-btn close" data-window="files"></div>
+                    <div class="control-btn minimize"></div>
+                    <div class="control-btn maximize"></div>
+                </div>
+            </div>
+            <div class="files-content">
+                <div class="files-toolbar">
+                    <button class="files-btn" onclick="createNewFile()">📄 Новый файл</button>
+                    <button class="files-btn" onclick="createNewFolder()">📁 Новая папка</button>
+                    <button class="files-btn" onclick="deleteSelected()">🗑️ Удалить</button>
+                    <button class="files-btn" onclick="renameSelected()">✏️ Переименовать</button>
+                </div>
+                <div class="file-list-container">
+                    <div class="file-list" id="file-list"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Окно браузера -->
+        <div class="window" id="browser-window">
+            <div class="window-header">
+                <span>🌐 ZIMA Browser</span>
+                <div class="window-controls">
+                    <div class="control-btn close" data-window="browser"></div>
+                    <div class="control-btn minimize"></div>
+                    <div class="control-btn maximize"></div>
+                </div>
+            </div>
+            <div class="window-content">
+                <div class="browser-content">
+                    <div class="browser-icon">🌐</div>
+                    <h1>ZIMA Browser</h1>
+                    <p>Безопасный и быстрый браузер</p>
+                    
+                    <div class="browser-search">
+                        <input type="text" class="search-input" id="search-input" 
+                               placeholder="Введите поисковый запрос или URL..."
+                               onkeypress="handleSearchEnter(event)">
+                        <div class="search-buttons">
+                            <button class="search-btn" onclick="searchWeb()">🔍 Поиск Google</button>
+                            <button class="search-btn" onclick="openWebsite()">🌐 Открыть сайт</button>
+                        </div>
+                    </div>
+
+                    <div class="quick-links">
+                        <div class="quick-link" onclick="openQuickLink('google')">
+                            <div class="link-icon">🔍</div>
+                            <div>Google</div>
+                        </div>
+                        <div class="quick-link" onclick="openQuickLink('youtube')">
+                            <div class="link-icon">📺</div>
+                            <div>YouTube</div>
+                        </div>
+                        <div class="quick-link" onclick="openQuickLink('github')">
+                            <div class="link-icon">💻</div>
+                            <div>GitHub</div>
+                        </div>
+                        <div class="quick-link" onclick="openQuickLink('wikipedia')">
+                            <div class="link-icon">📚</div>
+                            <div>Wikipedia</div>
+                        </div>
+                    </div>
+
+                    <div class="web-content" id="web-content">
+                        <div id="web-content-inner"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Окно терминала -->
+        <div class="window" id="terminal-window">
+            <div class="window-header">
+                <span>💻 Терминал ZIMA</span>
+                <div class="window-controls">
+                    <div class="control-btn close" data-window="terminal"></div>
+                    <div class="control-btn minimize"></div>
+                    <div class="control-btn maximize"></div>
+                </div>
+            </div>
+            <div class="window-content">
+                <div class="terminal-content">
+                    <div class="terminal-output" id="terminal-output"></div>
+                    <div class="terminal-input-line">
+                        <span class="terminal-prompt">user@zima-os:~$ </span>
+                        <input type="text" class="terminal-input" id="terminal-input" autofocus>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Окно настроек -->
+        <div class="window" id="settings-window">
+            <div class="window-header">
+                <span>⚙️ Настройки системы</span>
+                <div class="window-controls">
+                    <div class="control-btn close" data-window="settings"></div>
+                    <div class="control-btn minimize"></div>
+                    <div class="control-btn maximize"></div>
+                </div>
+            </div>
+            <div class="window-content">
+                <div class="settings-content">
+                    <div class="settings-category">
+                        <div class="settings-title">🎨 Внешний вид</div>
+                        <div class="settings-grid">
+                            <div class="setting-item" onclick="changeTheme('light')">
+                                <div class="setting-header">
+                                    <div class="setting-icon">☀️</div>
+                                    <div class="setting-name">Светлая тема</div>
+                                </div>
+                                <div class="setting-desc">Классическая светлая цветовая схема</div>
+                            </div>
+                            <div class="setting-item" onclick="changeTheme('dark')">
+                                <div class="setting-header">
+                                    <div class="setting-icon">🌙</div>
+                                    <div class="setting-name">Темная тема</div>
+                                </div>
+                                <div class="setting-desc">Комфортная темная цветовая схема</div>
+                            </div>
+                            <div class="setting-item" onclick="changeWallpaper()">
+                                <div class="setting-header">
+                                    <div class="setting-icon">🖼️</div>
+                                    <div class="setting-name">Обои</div>
+                                </div>
+                                <div class="setting-desc">Изменить фоновое изображение</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="settings-category">
+                        <div class="settings-title">🔒 Безопасность</div>
+                        <div class="settings-grid">
+                            <div class="setting-item" onclick="toggleFirewall()">
+                                <div class="setting-header">
+                                    <div class="setting-icon">🛡️</div>
+                                    <div class="setting-name">Фаервол</div>
+                                </div>
+                                <div class="setting-desc">Включить защиту сети</div>
+                            </div>
+                            <div class="setting-item" onclick="runVirusScan()">
+                                <div class="setting-header">
+                                    <div class="setting-icon">🔍</div>
+                                    <div class="setting-name">Проверка системы</div>
+                                </div>
+                                <div class="setting-desc">Запустить антивирусное сканирование</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="settings-category">
+                        <div class="settings-title">⚡ Система</div>
+                        <div class="settings-grid">
+                            <div class="setting-item" onclick="showSystemInfo()">
+                                <div class="setting-header">
+                                    <div class="setting-icon">💻</div>
+                                    <div class="setting-name">О системе</div>
+                                </div>
+                                <div class="setting-desc">Информация о ZIMA OS</div>
+                            </div>
+                            <div class="setting-item" onclick="updateSystem()">
+                                <div class="setting-header">
+                                    <div class="setting-icon">🔄</div>
+                                    <div class="setting-name">Обновления</div>
+                                </div>
+                                <div class="setting-desc">Проверить обновления системы</div>
+                            </div>
+                            <div class="setting-item" onclick="openTaskManager()">
+                                <div class="setting-header">
+                                    <div class="setting-icon">📊</div>
+                                    <div class="setting-name">Диспетчер задач</div>
+                                </div>
+                                <div class="setting-desc">Управление процессами системы</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Меню Пуск -->
+        <div class="start-menu" id="start-menu">
+            <div class="start-header">
+                <div class="start-user">👤 Пользователь ZIMA</div>
+                <div class="start-status">ZIMA OS v1.0 - Все системы работают</div>
+            </div>
+            <div class="start-apps">
+                <div class="start-app" data-app="files">
+                    <div class="start-app-icon">📁</div>
+                    <div class="start-app-name">Файлы</div>
+                </div>
+                <div class="start-app" data-app="browser">
+                    <div class="start-app-icon">🌐</div>
+                    <div class="start-app-name">Браузер</div>
+                </div>
+                <div class="start-app" data-app="terminal">
+                    <div class="start-app-icon">💻</div>
+                    <div class="start-app-name">Терминал</div>
+                </div>
+                <div class="start-app" data-app="settings">
+                    <div class="start-app-icon">⚙️</div>
+                    <div class="start-app-name">Настройки</div>
+                </div>
+                <div class="start-app" onclick="openCalculator()">
+                    <div class="start-app-icon">🧮</div>
+                    <div class="start-app-name">Калькулятор</div>
+                </div>
+                <div class="start-app" onclick="openNotepad()">
+                    <div class="start-app-icon">📝</div>
+                    <div class="start-app-name">Блокнот</div>
+                </div>
+            </div>
+            <div class="start-footer">
+                <div>🚀 ZIMA OS</div>
+                <button class="power-btn" onclick="shutdown()">⏻ Выключение</button>
+            </div>
+        </div>
+
+        <!-- Контекстное меню -->
+        <div class="file-context-menu" id="context-menu">
+            <div class="context-item" onclick="renameSelected()">✏️ Переименовать</div>
+            <div class="context-item" onclick="deleteSelected()">🗑️ Удалить</div>
+            <div class="context-item" onclick="showFileProperties()">ℹ️ Свойства</div>
+        </div>
+
+        <!-- Уведомления -->
+        <div class="notification" id="notification">
+            <div id="notification-text">Сообщение</div>
+        </div>
+
+        <!-- Панель задач -->
+        <div class="taskbar">
+            <button class="start-btn" onclick="toggleStartMenu()">🚀 Пуск</button>
+            <div class="taskbar-apps">
+                <div class="taskbar-app" data-app="files">📁 Файлы</div>
+                <div class="taskbar-app" data-app="browser">🌐 Браузер</div>
+                <div class="taskbar-app" data-app="terminal">💻 Терминал</div>
+                <div class="taskbar-app" data-app="settings">⚙️ Настройки</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Глобальные переменные
+        let selectedFile = null;
+        let fileCounter = 1;
+        let folderCounter = 1;
+
+        // База данных файлов
+        const virtualFileSystem = {
+            files: [
+                {
+                    id: 1,
+                    name: "Добро пожаловать.txt",
+                    type: "text",
+                    icon: "📄",
+                    content: "Добро пожаловать в ZIMA OS!\n\nЭто демонстрационная операционная система с полнофункциональным файловым менеджером, браузером, терминалом и настройками.\n\nВсе элементы полностью кликабельны и работают!",
+                    size: "2.1 KB",
+                    created: new Date().toLocaleString('ru-RU')
+                },
+                {
+                    id: 2,
+                    name: "Мои заметки.md",
+                    type: "text",
+                    icon: "📝",
+                    content: "# Мои заметки\n\n## Достижения:\n- ✅ Файловый менеджер работает\n- ✅ Браузер функционирует\n- ✅ Терминал активен\n- ✅ Настройки доступны\n- ✅ Меню Пуск плавное\n\n## Планы:\n- Создать новые приложения\n- Добавить больше функций\n- Улучшить дизайн",
+                    size: "1.8 KB",
+                    created: new Date().toLocaleString('ru-RU')
+                },
+                {
+                    id: 3,
+                    name: "Документы",
+                    type: "folder",
+                    icon: "📁",
+                    content: "Папка с важными документами",
+                    size: "4 KB",
+                    created: new Date().toLocaleString('ru-RU')
+                }
+            ]
+        };
+
+        // Инициализация файловой системы
+        function initializeFileSystem() {
+            const fileList = document.getElementById('file-list');
+            fileList.innerHTML = '';
+
+            virtualFileSystem.files.forEach(file => {
+                const fileItem = document.createElement('div');
+                fileItem.className = 'file-item';
+                fileItem.dataset.id = file.id;
+                fileItem.onclick = (e) => {
+                    e.stopPropagation();
+                    selectFile(file.id);
+                };
+                fileItem.oncontextmenu = (e) => {
+                    e.preventDefault();
+                    showContextMenu(e, file.id);
+                };
+                
+                fileItem.innerHTML = `
+                    <div class="file-icon">${file.icon}</div>
+                    <div class="file-name">${file.name}</div>
+                `;
+                
+                fileList.appendChild(fileItem);
+            });
+        }
+
+        // Функции для файлового менеджера
+        function createNewFile() {
+            const newFile = {
+                id: Date.now(),
+                name: `Новый файл ${fileCounter++}.txt`,
+                type: "text",
+                icon: "📄",
+                content: "Это новый файл, созданный в ZIMA OS.\n\nВы можете редактировать это содержимое через контекстное меню.",
+                size: "1 KB",
+                created: new Date().toLocaleString('ru-RU')
+            };
+            
+            virtualFileSystem.files.push(newFile);
+            initializeFileSystem();
+            showNotification(`📄 Создан новый файл: "${newFile.name}"`);
+        }
+
+        function createNewFolder() {
+            const newFolder = {
+                id: Date.now(),
+                name: `Новая папка ${folderCounter++}`,
+                type: "folder",
+                icon: "📁",
+                content: "Это новая папка для организации файлов.",
+                size: "4 KB",
+                created: new Date().toLocaleString('ru-RU')
+            };
+            
+            virtualFileSystem.files.push(newFolder);
+            initializeFileSystem();
+            showNotification(`📁 Создана новая папка: "${newFolder.name}"`);
+        }
+
+        function selectFile(fileId) {
+            // Снимаем выделение со всех файлов
+            document.querySelectorAll('.file-item').forEach(item => {
+                item.classList.remove('selected');
+            });
+            
+            // Выделяем выбранный файл
+            const selectedItem = document.querySelector(`.file-item[data-id="${fileId}"]`);
+            if (selectedItem) {
+                selectedItem.classList.add('selected');
+                selectedFile = virtualFileSystem.files.find(f => f.id == fileId);
+            }
+        }
+
+        function showContextMenu(e, fileId) {
+            selectFile(fileId);
+            const contextMenu = document.getElementById('context-menu');
+            contextMenu.style.display = 'block';
+            contextMenu.style.left = e.pageX + 'px';
+            contextMenu.style.top = e.pageY + 'px';
+            
+            // Скрываем контекстное меню при клике вне его
+            setTimeout(() => {
+                document.addEventListener('click', hideContextMenu);
+            }, 100);
+        }
+
+        function hideContextMenu() {
+            const contextMenu = document.getElementById('context-menu');
+            contextMenu.style.display = 'none';
+            document.removeEventListener('click', hideContextMenu);
+        }
+
+        function renameSelected() {
+            if (!selectedFile) {
+                showNotification("❌ Выберите файл для переименования");
+                return;
+            }
+            
+            const newName = prompt("Введите новое имя:", selectedFile.name);
+            if (newName && newName.trim() !== '') {
+                selectedFile.name = newName.trim();
+                initializeFileSystem();
+                showNotification(`✏️ Файл переименован в: "${newName}"`);
+            }
+        }
+
+        function deleteSelected() {
+            if (!selectedFile) {
+                showNotification("❌ Выберите файл для удаления");
+                return;
+            }
+            
+            if (confirm(`Удалить "${selectedFile.name}"?`)) {
+                const index = virtualFileSystem.files.findIndex(f => f.id === selectedFile.id);
+                if (index !== -1) {
+                    virtualFileSystem.files.splice(index, 1);
+                    initializeFileSystem();
+                    selectedFile = null;
+                    showNotification(`🗑️ Файл "${selectedFile.name}" удален`);
+                }
+            }
+        }
+
+        function showFileProperties() {
+            if (!selectedFile) {
+                showNotification("❌ Выберите файл для просмотра свойств");
+                return;
+            }
+            
+            alert(`Свойства файла:\n\nИмя: ${selectedFile.name}\nТип: ${selectedFile.type}\nРазмер: ${selectedFile.size}\nСоздан: ${selectedFile.created}`);
+        }
+
+        // Функции для браузера
+        function handleSearchEnter(event) {
+            if (event.key === 'Enter') {
+                searchWeb();
+            }
+        }
+
+        function searchWeb() {
+            const query = document.getElementById('search-input').value.trim();
+            if (!query) {
+                showNotification("❌ Введите поисковый запрос");
+                return;
+            }
+            
+            showWebContent(`
+                <h2>🔍 Результаты поиска: "${query}"</h2>
+                <div style="margin-top: 20px;">
+                    <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 10px 0;">
+                        <h3 style="color: #1a0dab; margin: 0 0 5px 0;">Результат 1 по запросу "${query}"</h3>
+                        <p style="color: #006621; margin: 0 0 5px 0;">https://www.example.com/search?q=${encodeURIComponent(query)}</p>
+                        <p style="color: #545454; margin: 0;">Это демонстрационная страница результатов поиска. В реальной системе здесь были бы результаты из Google.</p>
+                    </div>
+                    <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 10px 0;">
+                        <h3 style="color: #1a0dab; margin: 0 0 5px 0;">Веб-сайты по теме "${query}"</h3>
+                        <p style="color: #006621; margin: 0 0 5px 0;">https://www.${query.toLowerCase()}.com</p>
+                        <p style="color: #545454; margin: 0;">Информационный сайт о ${query}.</p>
+                    </div>
+                </div>
+            `);
+            
+            showNotification(`🔍 Выполнен поиск: "${query}"`);
+        }
+
+        function openWebsite() {
+            const url = document.getElementById('search-input').value.trim();
+            if (!url) {
+                showNotification("❌ Введите URL сайта");
+                return;
+            }
+            
+            showWebContent(`
+                <h2>🌐 Сайт: ${url}</h2>
+                <div style="margin-top: 20px;">
+                    <div style="background: #e6f3ff; padding: 20px; border-radius: 8px; text-align: center;">
+                        <div style="font-size: 48px; margin-bottom: 10px;">🚀</div>
+                        <h3>Демонстрационная страница</h3>
+                        <p>В реальной системе здесь был бы загружен сайт: <strong>${url}</strong></p>
+                        <p>Это демо-версия браузера ZIMA OS с виртуальным веб-сёрфингом.</p>
+                    </div>
+                </div>
+            `);
+            
+            showNotification(`🌐 Открыт сайт: ${url}`);
+        }
+
+        function openQuickLink(service) {
+            const services = {
+                'google': { name: 'Google', content: '🔍 Главная страница Google поиска' },
+                'youtube': { name: 'YouTube', content: '📺 Видеохостинг YouTube' },
+                'github': { name: 'GitHub', content: '💻 Платформа для разработчиков GitHub' },
+                'wikipedia': { name: 'Wikipedia', content: '📚 Свободная энциклопедия Wikipedia' }
+            };
+            
+            const serviceInfo = services[service];
+            showWebContent(`
+                <h2>${serviceInfo.name}</h2>
+                <div style="margin-top: 20px;">
+                    <div style="background: #f8f9fa; padding: 30px; border-radius: 8px; text-align: center;">
+                        <div style="font-size: 64px; margin-bottom: 20px;">${serviceInfo.name === 'Google' ? '🔍' : serviceInfo.name === 'YouTube' ? '📺' : serviceInfo.name === 'GitHub' ? '💻' : '📚'}</div>
+                        <h3>Добро пожаловать на ${serviceInfo.name}</h3>
+                        <p>${serviceInfo.content}</p>
+                        <p style="color: #666; margin-top: 20px;">Это демонстрационная страница. В реальном браузере вы бы попали на настоящий сайт.</p>
+                    </div>
+                </div>
+            `);
+            
+            document.getElementById('search-input').value = serviceInfo.name;
+            showNotification(`🌐 Открыт ${serviceInfo.name}`);
+        }
+
+        function showWebContent(content) {
+            const webContent = document.getElementById('web-content');
+            const webContentInner = document.getElementById('web-content-inner');
+            
+            webContentInner.innerHTML = content;
+            webContent.classList.add('active');
+        }
+
+        // Функции для терминала
+        const terminalInput = document.getElementById('terminal-input');
+        const terminalOutput = document.getElementById('terminal-output');
+
+        // Добавляем начальное сообщение
+        terminalOutput.innerHTML = `
+            <div class="terminal-line">
+                <span class="terminal-prompt">user@zima-os:~$ </span>
+                <span>Добро пожаловать в терминал ZIMA OS v1.0</span>
+            </div>
+            <div class="terminal-line">
+                <span class="terminal-prompt">user@zima-os:~$ </span>
+                <span>Введите 'help' для списка команд</span>
+            </div>
+        `;
+
+        terminalInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                const command = this.value.trim();
+                this.value = '';
+                
+                if (command) {
+                    // Добавляем команду в вывод
+                    const commandLine = document.createElement('div');
+                    commandLine.className = 'terminal-line';
+                    commandLine.innerHTML = `<span class="terminal-prompt">user@zima-os:~$ </span>${command}`;
+                    terminalOutput.appendChild(commandLine);
+                    
+                    // Обрабатываем команду
+                    handleTerminalCommand(command);
+                    
+                    // Прокручиваем вниз
+                    terminalOutput.scrollTop = terminalOutput.scrollHeight;
+                }
+            }
+        });
+
+        function handleTerminalCommand(command) {
+            let output = '';
+            
+            switch(command.toLowerCase()) {
+                case 'help':
+                    output = `
+Доступные команды:
+<span style="color: #7BB8FF;">help</span>      - показать эту справку
+<span style="color: #7BB8FF;">clear</span>     - очистить терминал
+<span style="color: #7BB8FF;">ls</span>        - список файлов
+<span style="color: #7BB8FF;">neofetch</span>  - информация о системе
+<span style="color: #7BB8FF;">date</span>      - текущая дата и время
+<span style="color: #7BB8FF;">echo</span>      - вывод текста
+<span style="color: #7BB8FF;">pwd</span>       - текущая директория
+                    `;
+                    break;
+                case 'clear':
+                    terminalOutput.innerHTML = '';
+                    return;
+                case 'ls':
+                    output = virtualFileSystem.files.map(f => 
+                        `<span style="color: ${f.type === 'folder' ? '#7BB8FF' : '#00ff00'};">${f.name}</span>`
+                    ).join('<br>');
+                    break;
+                case 'neofetch':
+                    output = `
+<span style="color: #7BB8FF;">╭──────────────────────────────────────────╮</span>
+<span style="color: #7BB8FF;">│</span>  <span style="color: #00ff00;">ZIMA OS v1.0</span>                           <span style="color: #7BB8FF;">│</span>
+<span style="color: #7BB8FF;">├──────────────────────────────────────────┤</span>
+<span style="color: #7BB8FF;">│</span>  OS: ZIMA OS x86_64                     <span style="color: #7BB8FF;">│</span>
+<span style="color: #7BB8FF;">│</span>  Host: Virtual Machine                  <span style="color: #7BB8FF;">│</span>
+<span style="color: #7BB8FF;">│</span>  Kernel: 5.15.0-zima                    <span style="color: #7BB8FF;">│</span>
+<span style="color: #7BB8FF;">│</span>  DE: ZIMA Desktop                       <span style="color: #7BB8FF;">│</span>
+<span style="color: #7BB8FF;">│</span>  Theme: Blue Frost                      <span style="color: #7BB8FF;">│</span>
+<span style="color: #7BB8FF;">╰──────────────────────────────────────────╯</span>
+                    `;
+                    break;
+                case 'date':
+                    output = new Date().toLocaleString('ru-RU');
+                    break;
+                case 'pwd':
+                    output = '/home/user';
+                    break;
+                case command.toLowerCase().startsWith('echo ') ? command : '':
+                    output = command.substring(5);
+                    break;
+                default:
+                    output = `<span style="color: #ff6b6b;">zima: команда не найдена: ${command}</span>`;
+            }
+            
+            const outputLine = document.createElement('div');
+            outputLine.className = 'terminal-line';
+            outputLine.innerHTML = `<div class="command-output">${output}</div>`;
+            terminalOutput.appendChild(outputLine);
+        }
+
+        // Функции для настроек
+        function changeTheme(theme) {
+            const themes = {
+                light: 'Светлая тема',
+                dark: 'Темная тема'
+            };
+            showNotification(`🎨 Тема изменена: ${themes[theme]}`);
+        }
+
+        function changeWallpaper() {
+            showNotification("🖼️ Выберите новое фоновое изображение");
+        }
+
+        function toggleFirewall() {
+            showNotification('🛡️ Настройки фаервола обновлены');
+        }
+
+        function runVirusScan() {
+            showNotification('🔍 Запущена проверка системы...');
+            setTimeout(() => showNotification('✅ Проверка завершена: угроз не найдено'), 2000);
+        }
+
+        function showSystemInfo() {
+            alert(`ZIMA OS v1.0\n\nДемонстрационная операционная система\nВсе компоненты полностью функциональны\n\n© 2024 ZIMA OS Team`);
+        }
+
+        function updateSystem() {
+            showNotification('🔄 Проверка обновлений...');
+            setTimeout(() => showNotification('✅ Система обновлена до последней версии'), 1500);
+        }
+
+        function openTaskManager() {
+            showNotification('📊 Диспетчер задач запущен');
+        }
+
+        // Функции для меню Пуск
+        function toggleStartMenu() {
+            const menu = document.getElementById('start-menu');
+            menu.classList.toggle('active');
+        }
+
+        function openCalculator() {
+            showNotification('🧮 Калькулятор запущен');
+        }
+
+        function openNotepad() {
+            showNotification('📝 Блокнот запущен');
+        }
+
+        function shutdown() {
+            showNotification('⏻ Система завершает работу...');
+            setTimeout(() => {
+                document.body.innerHTML = `
+                    <div style="
+                        display: flex; 
+                        justify-content: center; 
+                        align-items: center; 
+                        height: 100vh; 
+                        background: #1a1a1a; 
+                        color: white; 
+                        font-size: 24px;
+                        flex-direction: column;
+                        gap: 20px;
+                    ">
+                        <div style="font-size: 48px;">⚡</div>
+                        <div>ZIMA OS завершила работу</div>
+                        <button onclick="location.reload()" style="
+                            padding: 10px 20px;
+                            background: #7BB8FF;
+                            border: none;
+                            border-radius: 8px;
+                            color: white;
+                            cursor: pointer;
+                            margin-top: 20px;
+                        ">Перезагрузить</button>
+                    </div>
+                `;
+            }, 1000);
+        }
+
+        // Вспомогательные функции
+        function showNotification(message) {
+            const notification = document.getElementById('notification');
+            const notificationText = document.getElementById('notification-text');
+            
+            notificationText.textContent = message;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        // Функции для работы с окнами
+        function openApp(appName) {
+            // Закрываем все окна
+            document.querySelectorAll('.window').forEach(window => {
+                window.classList.remove('active');
+            });
+            
+            // Открываем нужное окно
+            const window = document.getElementById(`${appName}-window`);
+            if (window) {
+                window.classList.add('active');
+                window.style.left = '50%';
+                window.style.top = '50%';
+                window.style.transform = 'translate(-50%, -50%)';
+                
+                if (appName === 'terminal') {
+                    setTimeout(() => {
+                        document.getElementById('terminal-input').focus();
+                    }, 100);
+                }
+            }
+            
+            // Закрываем меню Пуск
+            document.getElementById('start-menu').classList.remove('active');
+        }
+
+        function closeApp(appName) {
+            const window = document.getElementById(`${appName}-window`);
+            if (window) {
+                window.classList.remove('active');
+            }
+        }
+
+        // Инициализация при загрузке
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeFileSystem();
+            
+            // Обработчики для иконок рабочего стола
+            document.querySelectorAll('.icon').forEach(icon => {
+                icon.addEventListener('click', function() {
+                    const appName = this.dataset.app;
+                    openApp(appName);
+                });
+            });
+
+            // Обработчики для таскбара
+            document.querySelectorAll('.taskbar-app').forEach(app => {
+                app.addEventListener('click', function() {
+                    const appName = this.dataset.app;
+                    openApp(appName);
+                });
+            });
+
+            // Обработчики для меню Пуск
+            document.querySelectorAll('.start-app[data-app]').forEach(app => {
+                app.addEventListener('click', function() {
+                    const appName = this.dataset.app;
+                    openApp(appName);
+                });
+            });
+
+            // Обработчики для кнопок закрытия окон
+            document.querySelectorAll('.control-btn.close').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const windowName = this.dataset.window;
+                    closeApp(windowName);
+                });
+            });
+
+            // Закрытие меню Пуск при клике вне его
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.start-menu') && !e.target.closest('.start-btn')) {
+                    document.getElementById('start-menu').classList.remove('active');
+                }
+            });
+
+            // Скрытие контекстного меню при клике
+            document.addEventListener('click', hideContextMenu);
+        });
+    </script>
+</body>
+</html>
