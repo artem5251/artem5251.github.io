@@ -118,6 +118,12 @@
             width: 100%;
         }
 
+        .header-buttons {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
         .cta-button {
             background: var(--accent-blue);
             color: var(--dark-blue);
@@ -127,11 +133,23 @@
             font-weight: 600;
             transition: all 0.3s ease;
             box-shadow: 0 5px 15px rgba(79, 195, 247, 0.4);
+            border: none;
+            cursor: pointer;
         }
 
         .cta-button:hover {
             transform: translateY(-3px);
             box-shadow: 0 8px 20px rgba(79, 195, 247, 0.6);
+        }
+
+        .web-version-btn {
+            background: transparent;
+            border: 2px solid var(--accent-blue);
+            color: var(--text-white);
+        }
+
+        .web-version-btn:hover {
+            background: rgba(79, 195, 247, 0.1);
         }
 
         /* Hero Section */
@@ -450,6 +468,78 @@
             font-size: 0.9rem;
         }
 
+        /* Web Version Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal {
+            background: linear-gradient(135deg, #0d47a1 0%, #1e88e5 100%);
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: var(--shadow);
+            transform: translateY(-50px);
+            transition: transform 0.3s ease;
+        }
+
+        .modal-overlay.active .modal {
+            transform: translateY(0);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            color: var(--text-white);
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .close-modal:hover {
+            color: var(--accent-blue);
+        }
+
+        .modal-content {
+            margin-bottom: 25px;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: flex-end;
+        }
+
         /* Responsive */
         @media (max-width: 992px) {
             .hero h1 {
@@ -471,6 +561,16 @@
                 gap: 15px;
             }
             
+            .header-buttons {
+                flex-direction: column;
+                width: 100%;
+            }
+            
+            .header-buttons .cta-button {
+                width: 100%;
+                text-align: center;
+            }
+            
             .hero {
                 text-align: center;
             }
@@ -485,6 +585,10 @@
             
             .hero-buttons {
                 justify-content: center;
+            }
+            
+            .modal-buttons {
+                flex-direction: column;
             }
         }
     </style>
@@ -506,7 +610,10 @@
                         <li><a href="#support">Поддержка</a></li>
                     </ul>
                 </nav>
-                <a href="#download" class="cta-button">Узнать больше</a>
+                <div class="header-buttons">
+                    <button class="cta-button web-version-btn" id="webVersionBtn">Веб версия</button>
+                    <a href="#download" class="cta-button">Узнать больше</a>
+                </div>
             </div>
         </div>
     </header>
@@ -668,6 +775,24 @@
         </div>
     </footer>
 
+    <!-- Web Version Modal -->
+    <div class="modal-overlay" id="webVersionModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Веб версия ZIMA OS</h3>
+                <button class="close-modal" id="closeModal">&times;</button>
+            </div>
+            <div class="modal-content">
+                <p>Вы собираетесь открыть веб-версию ZIMA OS. Это откроет HTML-файл в новой вкладке браузера.</p>
+                <p>Для корректной работы убедитесь, что ваш файл называется <strong>index.html</strong> и размещен в корневой папке вашего репозитория GitHub Pages.</p>
+            </div>
+            <div class="modal-buttons">
+                <button class="cta-button web-version-btn" id="cancelBtn">Отмена</button>
+                <button class="cta-button" id="confirmWebVersion">Открыть</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Header scroll effect
         window.addEventListener('scroll', function() {
@@ -695,6 +820,40 @@
                     });
                 }
             });
+        });
+
+        // Web Version Modal functionality
+        const webVersionBtn = document.getElementById('webVersionBtn');
+        const webVersionModal = document.getElementById('webVersionModal');
+        const closeModal = document.getElementById('closeModal');
+        const cancelBtn = document.getElementById('cancelBtn');
+        const confirmWebVersion = document.getElementById('confirmWebVersion');
+
+        // Open modal
+        webVersionBtn.addEventListener('click', () => {
+            webVersionModal.classList.add('active');
+        });
+
+        // Close modal functions
+        const closeModalFunc = () => {
+            webVersionModal.classList.remove('active');
+        };
+
+        closeModal.addEventListener('click', closeModalFunc);
+        cancelBtn.addEventListener('click', closeModalFunc);
+
+        // Confirm and open web version
+        confirmWebVersion.addEventListener('click', () => {
+            // Open index.html in a new tab
+            window.open('index.html', '_blank');
+            closeModalFunc();
+        });
+
+        // Close modal when clicking outside
+        webVersionModal.addEventListener('click', (e) => {
+            if (e.target === webVersionModal) {
+                closeModalFunc();
+            }
         });
     </script>
 </body>
