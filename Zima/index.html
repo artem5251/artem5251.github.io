@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Zima - Мессенджер</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     <style>
         * {
             margin: 0;
@@ -287,6 +290,7 @@
             background: linear-gradient(135deg, #5a5a5a, #737373);
             max-width: 80%;
             text-align: center;
+            font-size: 0.9rem;
         }
 
         .message-sender {
@@ -473,9 +477,8 @@
                 <p>• john / 123456</p>
                 <p>• anna / 123456</p>
                 <br>
-                <h3>⚙️ Настройка GitHub:</h3>
-                <p>1. Создайте Issue #1 в репозитории</p>
-                <p>2. Укажите данные репозитория в коде</p>
+                <h3>🚀 Powered by Firebase</h3>
+                <p>Real-time синхронизация между всеми устройствами</p>
             </div>
         </div>
     </div>
@@ -487,7 +490,7 @@
                 <i class="fas fa-comments"></i>
                 <h2>Общий чат</h2>
                 <div class="online-indicator"></div>
-                <span id="onlineCount">Синхронизация...</span>
+                <span id="onlineCount">Подключение...</span>
             </div>
             
             <div class="user-menu">
@@ -507,7 +510,7 @@
         </div>
 
         <div class="sync-status" id="syncStatus">
-            <i class="fas fa-cloud"></i> Синхронизировано
+            <i class="fas fa-bolt"></i> Real-time подключение
         </div>
 
         <div class="messages-container" id="messagesContainer">
@@ -532,56 +535,64 @@
     </div>
 
     <script>
-        // ⚙️ КОНФИГУРАЦИЯ - НАСТРОЙТЕ ЭТИ ПАРАМЕТРЫ ⚙️
-        const CONFIG = {
-            // ЗАМЕНИТЕ на ваши данные репозитория
-            repoOwner: 'artem5251',      // Ваш GitHub username
-            repoName: 'artem5251.github.io',             // Название репозитория
-            issueNumber: 1,                         // Номер issue для чата
-            
-            // Не меняйте эти настройки
-            apiBase: 'https://api.github.com',
-            syncInterval: 3000, // Синхронизация каждые 3 секунды
-            maxMessages: 100    // Максимум сообщений в чате
+        // 🔥 Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyC8RjnKW2QLJZHbHYRsshJdrx4NNW4bT04",
+            authDomain: "zima-messenger.firebaseapp.com",
+            projectId: "zima-messenger",
+            storageBucket: "zima-messenger.firebasestorage.app",
+            messagingSenderId: "48411366570",
+            appId: "1:48411366570:web:ffe7b3ad0ef6d2dd9aacd3",
+            measurementId: "G-G6W77P5NFB"
         };
+
+        // Initialize Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
 
         // Предопределенные пользователи
         const users = {
-            'alex': { password: '123456', name: 'Алексей' },
-            'maria': { password: '123456', name: 'Мария' },
-            'john': { password: '123456', name: 'Джон' },
-            'anna': { password: '123456', name: 'Анна' }
+            'alex': { password: '123456', name: 'Алексей', color: '#4a86e8' },
+            'maria': { password: '123456', name: 'Мария', color: '#e67399' },
+            'john': { password: '123456', name: 'Джон', color: '#6aa84f' },
+            'anna': { password: '123456', name: 'Анна', color: '#ff9900' }
         };
 
         let currentUser = null;
-        let messages = [];
-        let lastMessageId = 0;
-        let syncInterval = null;
-        let isOnline = true;
+        let unsubscribeMessages = null;
+        let unsubscribeOnline = null;
 
         // 🗄️ Функции для работы с localStorage
         function saveUserToStorage(user, remember) {
-            if (remember) {
-                localStorage.setItem('zima_user', JSON.stringify(user));
-                localStorage.setItem('zima_remember', 'true');
-            } else {
-                sessionStorage.setItem('zima_user', JSON.stringify(user));
-                localStorage.removeItem('zima_user');
-                localStorage.setItem('zima_remember', 'false');
+            try {
+                if (remember) {
+                    localStorage.setItem('zima_user', JSON.stringify(user));
+                    localStorage.setItem('zima_remember', 'true');
+                } else {
+                    sessionStorage.setItem('zima_user', JSON.stringify(user));
+                    localStorage.setItem('zima_remember', 'false');
+                }
+            } catch (e) {
+                console.error('❌ Ошибка сохранения пользователя:', e);
             }
         }
 
         function loadUserFromStorage() {
-            let user = null;
-            const remember = localStorage.getItem('zima_remember') === 'true';
-            
-            if (remember) {
-                user = localStorage.getItem('zima_user');
-            } else {
-                user = sessionStorage.getItem('zima_user');
+            try {
+                let user = null;
+                const remember = localStorage.getItem('zima_remember') === 'true';
+                
+                if (remember) {
+                    user = localStorage.getItem('zima_user');
+                } else {
+                    user = sessionStorage.getItem('zima_user');
+                }
+                
+                return user ? JSON.parse(user) : null;
+            } catch (e) {
+                console.error('❌ Ошибка загрузки пользователя:', e);
+                return null;
             }
-            
-            return user ? JSON.parse(user) : null;
         }
 
         function clearUserStorage() {
@@ -590,174 +601,67 @@
             localStorage.removeItem('zima_remember');
         }
 
-        // 📡 GitHub API функции
-        async function fetchMessagesFromGitHub() {
+        // 🔥 Firebase Functions
+        async function sendMessageToFirebase(message) {
             try {
-                console.log('🔄 Загрузка сообщений из GitHub...');
-                
-                const response = await fetch(
-                    `${CONFIG.apiBase}/repos/${CONFIG.repoOwner}/${CONFIG.repoName}/issues/${CONFIG.issueNumber}/comments?per_page=100&t=${Date.now()}`,
-                    {
-                        method: 'GET',
-                        headers: {
-                            'Accept': 'application/vnd.github.v3+json',
-                            'Content-Type': 'application/json'
-                        },
-                        cache: 'no-cache'
-                    }
-                );
-
-                if (!response.ok) {
-                    throw new Error(`GitHub API error: ${response.status}`);
-                }
-
-                const comments = await response.json();
-                const newMessages = [];
-
-                // Парсим сообщения из комментариев
-                comments.forEach(comment => {
-                    try {
-                        const messageData = JSON.parse(comment.body);
-                        if (messageData && messageData.id) {
-                            newMessages.push({
-                                ...messageData,
-                                githubId: comment.id,
-                                createdAt: comment.created_at
-                            });
-                        }
-                    } catch (e) {
-                        console.warn('Неверный формат сообщения:', comment.body);
-                    }
+                await db.collection('messages').add({
+                    ...message,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
-
-                // Сортируем по времени
-                newMessages.sort((a, b) => a.timestamp - b.timestamp);
-                
-                console.log(`✅ Загружено ${newMessages.length} сообщений`);
-                return newMessages;
-
-            } catch (error) {
-                console.error('❌ Ошибка загрузки сообщений:', error);
-                throw error;
-            }
-        }
-
-        async function sendMessageToGitHub(message) {
-            try {
-                console.log('📤 Отправка сообщения в GitHub...');
-                
-                const response = await fetch(
-                    `${CONFIG.apiBase}/repos/${CONFIG.repoOwner}/${CONFIG.repoName}/issues/${CONFIG.issueNumber}/comments`,
-                    {
-                        method: 'POST',
-                        headers: {
-                            'Accept': 'application/vnd.github.v3+json',
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            body: JSON.stringify(message)
-                        })
-                    }
-                );
-
-                if (!response.ok) {
-                    throw new Error(`GitHub API error: ${response.status}`);
-                }
-
-                const result = await response.json();
-                console.log('✅ Сообщение отправлено');
-                return result;
-
+                console.log('✅ Сообщение отправлено в Firebase');
             } catch (error) {
                 console.error('❌ Ошибка отправки сообщения:', error);
                 throw error;
             }
         }
 
-        // 🔄 Синхронизация сообщений
-        async function loadMessages() {
-            const messagesLoading = document.getElementById('messagesLoading');
-            messagesLoading.style.display = 'block';
-            
-            try {
-                messages = await fetchMessagesFromGitHub();
-                
-                // Если сообщений нет, создаем приветственное
-                if (messages.length === 0) {
-                    const welcomeMessage = createSystemMessage('Добро пожаловать в Zima Messenger! 🎉 Начните общение.');
-                    messages.push(welcomeMessage);
-                }
-                
-                // Сохраняем ID последнего сообщения
-                lastMessageId = Math.max(...messages.map(m => m.id), 0);
-                
-                displayAllMessages();
-                updateSyncStatus('Синхронизировано', false);
-                
-            } catch (error) {
-                console.error('Ошибка загрузки:', error);
-                updateSyncStatus('Ошибка синхронизации', false, true);
-                
-                // Показываем сообщение об ошибке
-                const errorMessage = createSystemMessage('⚠️ Не удалось загрузить сообщения. Проверьте настройки GitHub.');
-                displayMessage(errorMessage);
-                
-            } finally {
-                messagesLoading.style.display = 'none';
-            }
-        }
-
-        async function syncMessages() {
-            if (!isOnline) return;
-            
-            try {
-                updateSyncStatus('Синхронизация...', true);
-                
-                const newMessages = await fetchMessagesFromGitHub();
-                let hasNewMessages = false;
-                
-                // Находим новые сообщения
-                for (const newMsg of newMessages) {
-                    const exists = messages.some(msg => msg.id === newMsg.id);
-                    if (!exists && newMsg.id > lastMessageId) {
-                        messages.push(newMsg);
-                        lastMessageId = Math.max(lastMessageId, newMsg.id);
-                        hasNewMessages = true;
-                    }
-                }
-                
-                if (hasNewMessages) {
-                    // Сортируем по времени
-                    messages.sort((a, b) => a.timestamp - b.timestamp);
+        function subscribeToMessages() {
+            return db.collection('messages')
+                .orderBy('createdAt', 'asc')
+                .limit(100)
+                .onSnapshot(snapshot => {
+                    const messagesContainer = document.getElementById('messagesContainer');
+                    messagesContainer.innerHTML = '';
                     
-                    // Ограничиваем количество сообщений
-                    if (messages.length > CONFIG.maxMessages) {
-                        messages = messages.slice(-CONFIG.maxMessages);
-                    }
+                    snapshot.forEach(doc => {
+                        const message = doc.data();
+                        displayMessage(message);
+                    });
                     
-                    displayAllMessages();
-                    console.log('🔄 Новые сообщения получены');
-                }
-                
-                updateSyncStatus('Синхронизировано', false);
-                
-            } catch (error) {
-                console.error('Ошибка синхронизации:', error);
-                updateSyncStatus('Ошибка синхронизации', false, true);
-            }
+                    scrollToBottom();
+                    updateSyncStatus('Real-time подключение', false);
+                }, error => {
+                    console.error('❌ Ошибка подписки на сообщения:', error);
+                    updateSyncStatus('Ошибка подключения', false, true);
+                });
         }
 
-        function startSync() {
-            console.log('🔄 Запуск синхронизации...');
-            syncInterval = setInterval(syncMessages, CONFIG.syncInterval);
+        function updateOnlineStatus() {
+            if (!currentUser) return;
+            
+            const userStatusRef = db.collection('onlineUsers').doc(currentUser.username);
+            
+            // Устанавливаем статус онлайн
+            userStatusRef.set({
+                name: currentUser.name,
+                lastSeen: firebase.firestore.FieldValue.serverTimestamp(),
+                isOnline: true
+            });
+            
+            // Устанавливаем авто-офлайн при закрытии вкладки
+            userStatusRef.onDisconnect().update({
+                isOnline: false,
+                lastSeen: firebase.firestore.FieldValue.serverTimestamp()
+            });
         }
 
-        function stopSync() {
-            if (syncInterval) {
-                console.log('🛑 Остановка синхронизации');
-                clearInterval(syncInterval);
-                syncInterval = null;
-            }
+        function subscribeToOnlineUsers() {
+            return db.collection('onlineUsers')
+                .where('isOnline', '==', true)
+                .onSnapshot(snapshot => {
+                    const onlineCount = snapshot.size;
+                    document.getElementById('onlineCount').textContent = `${onlineCount} онлайн`;
+                });
         }
 
         // ✨ Вспомогательные функции
@@ -782,7 +686,7 @@
                 statusElement.innerHTML = `<i class="fas fa-sync fa-spin"></i> ${text}`;
                 statusElement.className = 'sync-status syncing';
             } else {
-                statusElement.innerHTML = `<i class="fas fa-cloud"></i> ${text}`;
+                statusElement.innerHTML = `<i class="fas fa-bolt"></i> ${text}`;
                 statusElement.className = 'sync-status';
             }
         }
@@ -804,28 +708,30 @@
                 try {
                     currentUser = {
                         username: username,
-                        name: users[username].name
+                        name: users[username].name,
+                        color: users[username].color
                     };
                     
                     // Сохраняем пользователя
                     saveUserToStorage(currentUser, rememberMe);
                     
-                    // Загружаем сообщения
-                    await loadMessages();
-                    
+                    // Переключаем на чат
                     document.getElementById('loginPage').style.display = 'none';
                     document.getElementById('chatPage').style.display = 'flex';
                     document.getElementById('currentUserName').textContent = users[username].name;
                     
-                    // Запускаем синхронизацию
-                    startSync();
+                    // Подписываемся на сообщения
+                    unsubscribeMessages = subscribeToMessages();
+                    
+                    // Обновляем онлайн статус
+                    updateOnlineStatus();
+                    unsubscribeOnline = subscribeToOnlineUsers();
                     
                     // Фокусируемся на поле ввода
                     document.getElementById('messageInput').focus();
                     
                     // Добавляем сообщение о входе
-                    const joinMessage = createSystemMessage(`${users[username].name} присоединился к чату`);
-                    displayMessage(joinMessage);
+                    await sendMessageToFirebase(createSystemMessage(`${users[username].name} присоединился к чату`));
                     
                 } catch (error) {
                     console.error('Ошибка входа:', error);
@@ -841,15 +747,25 @@
             }
         }
 
-        function logout() {
+        async function logout() {
             if (currentUser) {
-                const leaveMessage = createSystemMessage(`${currentUser.name} вышел из чата`);
-                displayMessage(leaveMessage);
+                // Устанавливаем офлайн статус
+                await db.collection('onlineUsers').doc(currentUser.username).update({
+                    isOnline: false,
+                    lastSeen: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                // Сообщение о выходе
+                await sendMessageToFirebase(createSystemMessage(`${currentUser.name} вышел из чата`));
             }
+            
+            // Отписываемся от слушателей
+            if (unsubscribeMessages) unsubscribeMessages();
+            if (unsubscribeOnline) unsubscribeOnline();
             
             currentUser = null;
             clearUserStorage();
-            stopSync();
+            
             document.getElementById('chatPage').style.display = 'none';
             document.getElementById('loginPage').style.display = 'flex';
             document.getElementById('username').value = '';
@@ -863,7 +779,6 @@
             if (savedUser && users[savedUser.username]) {
                 document.getElementById('username').value = savedUser.username;
                 document.getElementById('rememberMe').checked = localStorage.getItem('zima_remember') === 'true';
-                // Не авторизуем автоматически, только заполняем форму
             }
         }
 
@@ -883,21 +798,13 @@
                         username: currentUser.username,
                         text: text,
                         time: new Date().toLocaleTimeString('ru-RU'),
-                        timestamp: Date.now()
+                        timestamp: Date.now(),
+                        userColor: currentUser.color
                     };
                     
-                    // Отправляем в GitHub
-                    await sendMessageToGitHub(message);
-                    
-                    // Добавляем локально
-                    messages.push(message);
-                    lastMessageId = Math.max(lastMessageId, message.id);
-                    displayMessage(message);
+                    await sendMessageToFirebase(message);
                     messageInput.value = '';
                     adjustTextareaHeight();
-                    
-                    // Прокрутка к последнему сообщению
-                    scrollToBottom();
                     
                 } catch (error) {
                     console.error('Ошибка отправки:', error);
@@ -909,14 +816,6 @@
             }
         }
 
-        function displayAllMessages() {
-            const messagesContainer = document.getElementById('messagesContainer');
-            messagesContainer.innerHTML = '';
-            
-            messages.forEach(message => displayMessage(message));
-            scrollToBottom();
-        }
-
         function displayMessage(message) {
             const messagesContainer = document.getElementById('messagesContainer');
             const messageElement = document.createElement('div');
@@ -925,6 +824,10 @@
                                (message.username === currentUser?.username ? 'own' : 'other');
             
             messageElement.className = `message ${messageClass}`;
+            
+            if (message.userColor && messageClass === 'own') {
+                messageElement.style.background = `linear-gradient(135deg, ${message.userColor}44, ${message.userColor}66)`;
+            }
             
             messageElement.innerHTML = `
                 ${message.username !== currentUser?.username && message.username !== 'system' ? 
@@ -973,30 +876,16 @@
             }
         });
 
-        // События онлайн/офлайн
-        window.addEventListener('online', function() {
-            isOnline = true;
-            updateSyncStatus('Восстановлено соединение', false);
-            syncMessages();
-        });
-
-        window.addEventListener('offline', function() {
-            isOnline = false;
-            updateSyncStatus('Нет соединения', false, true);
-        });
-
         // 🚀 Инициализация
         document.addEventListener('DOMContentLoaded', function() {
             adjustTextareaHeight();
-            updateSyncStatus('Готов к работе', false);
+            updateSyncStatus('Подключение к Firebase...', true);
             autoLogin();
             
-            // Запускаем синхронизацию если пользователь уже авторизован
-            const savedUser = loadUserFromStorage();
-            if (savedUser && users[savedUser.username]) {
-                // Можно добавить автоматический вход, но для безопасности лучше не делать
-                console.log('Пользователь сохранен:', savedUser.username);
-            }
+            // Проверяем подключение к Firebase
+            setTimeout(() => {
+                updateSyncStatus('Real-time подключение', false);
+            }, 2000);
         });
     </script>
 </body>
