@@ -20,9 +20,10 @@
             line-height: 1.6;
         }
 
+        /* Header */
         .header {
             background: linear-gradient(145deg, #2d2d2d, #252525);
-            padding: 15px 30px;
+            padding: 15px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -36,7 +37,7 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            font-size: 1.5rem;
+            font-size: 1.3rem;
             font-weight: 700;
             background: linear-gradient(to right, #a0a0a0, #d0d0d0);
             -webkit-background-clip: text;
@@ -44,9 +45,13 @@
             color: transparent;
         }
 
+        .logo i {
+            font-size: 1.5rem;
+        }
+
         .nav-links {
             display: flex;
-            gap: 25px;
+            gap: 20px;
         }
 
         .nav-links a {
@@ -54,21 +59,63 @@
             text-decoration: none;
             transition: color 0.3s;
             font-weight: 500;
+            font-size: 0.9rem;
         }
 
         .nav-links a:hover {
             color: #e0e0e0;
         }
 
+        /* Mobile Menu */
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: #b0b0b0;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .mobile-nav {
+            display: none;
+            background: linear-gradient(145deg, #2d2d2d, #252525);
+            padding: 20px;
+            border-bottom: 1px solid #444;
+        }
+
+        .mobile-nav.active {
+            display: block;
+        }
+
+        .mobile-nav-links {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .mobile-nav-links a {
+            color: #b0b0b0;
+            text-decoration: none;
+            padding: 10px;
+            border-radius: 8px;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .mobile-nav-links a:hover {
+            background: #3a3a3a;
+            color: #e0e0e0;
+        }
+
         .container {
             max-width: 1400px;
             margin: 0 auto;
-            padding: 30px 20px;
+            padding: 20px 15px;
         }
 
         .page-title {
-            font-size: 2.5rem;
-            margin-bottom: 30px;
+            font-size: 2rem;
+            margin-bottom: 25px;
             text-align: center;
             background: linear-gradient(to right, #a0a0a0, #d0d0d0);
             -webkit-background-clip: text;
@@ -76,11 +123,12 @@
             color: transparent;
         }
 
+        /* Videos Grid */
         .videos-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 25px;
-            margin-top: 30px;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 25px;
         }
 
         .video-card {
@@ -117,36 +165,40 @@
         }
 
         .video-thumbnail i {
-            font-size: 3rem;
+            font-size: 2.5rem;
             color: #b0b0b0;
             position: absolute;
         }
 
         .video-duration {
             position: absolute;
-            bottom: 10px;
-            right: 10px;
+            bottom: 8px;
+            right: 8px;
             background: rgba(0,0,0,0.7);
-            padding: 3px 8px;
+            padding: 2px 6px;
             border-radius: 4px;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
         }
 
         .video-info {
-            padding: 15px;
+            padding: 12px;
         }
 
         .video-title {
-            font-size: 1.1rem;
-            margin-bottom: 8px;
+            font-size: 1rem;
+            margin-bottom: 6px;
             color: #e0e0e0;
             font-weight: 600;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
         }
 
         .video-description {
             color: #a0a0a0;
-            font-size: 0.9rem;
-            margin-bottom: 10px;
+            font-size: 0.85rem;
+            margin-bottom: 8px;
             display: -webkit-box;
             -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
@@ -157,46 +209,60 @@
             display: flex;
             justify-content: space-between;
             color: #888;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
         }
 
+        /* No Videos State */
         .no-videos {
             text-align: center;
-            padding: 60px 20px;
+            padding: 40px 20px;
             color: #a0a0a0;
         }
 
         .no-videos i {
-            font-size: 4rem;
-            margin-bottom: 20px;
+            font-size: 3rem;
+            margin-bottom: 15px;
             color: #5a5a5a;
+        }
+
+        .no-videos h3 {
+            font-size: 1.3rem;
+            margin-bottom: 10px;
         }
 
         .loading {
             text-align: center;
-            padding: 40px;
+            padding: 30px;
             color: #b0b0b0;
         }
 
+        .loading i {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+
+        /* Video Player Modal */
         .video-player-modal {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.9);
+            background: rgba(0,0,0,0.95);
             display: none;
             justify-content: center;
             align-items: center;
             z-index: 1000;
+            padding: 10px;
         }
 
         .video-player {
-            max-width: 90%;
-            max-height: 90%;
+            width: 100%;
+            max-width: 900px;
             background: #2d2d2d;
             border-radius: 12px;
             overflow: hidden;
+            position: relative;
         }
 
         .video-player video {
@@ -206,33 +272,169 @@
         }
 
         .player-info {
-            padding: 20px;
+            padding: 15px;
+        }
+
+        .player-info h3 {
+            font-size: 1.2rem;
+            margin-bottom: 8px;
+            color: #e0e0e0;
+        }
+
+        .player-info p {
+            color: #a0a0a0;
+            font-size: 0.9rem;
         }
 
         .close-player {
             position: absolute;
-            top: 20px;
-            right: 20px;
-            background: none;
+            top: 10px;
+            right: 10px;
+            background: rgba(0,0,0,0.7);
             border: none;
             color: white;
-            font-size: 2rem;
+            font-size: 1.5rem;
             cursor: pointer;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1001;
         }
 
+        /* Mobile Styles */
         @media (max-width: 768px) {
+            .header {
+                padding: 12px 15px;
+            }
+
+            .logo {
+                font-size: 1.1rem;
+            }
+
+            .logo i {
+                font-size: 1.3rem;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .mobile-menu-btn {
+                display: block;
+            }
+
+            .page-title {
+                font-size: 1.6rem;
+                margin-bottom: 20px;
+            }
+
             .videos-grid {
                 grid-template-columns: 1fr;
+                gap: 15px;
             }
-            
+
+            .video-thumbnail {
+                height: 160px;
+            }
+
+            .video-thumbnail i {
+                font-size: 2rem;
+            }
+
+            .video-info {
+                padding: 10px;
+            }
+
+            .video-title {
+                font-size: 0.95rem;
+            }
+
+            .video-description {
+                font-size: 0.8rem;
+            }
+
+            .container {
+                padding: 15px 10px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .video-thumbnail {
+                height: 140px;
+            }
+
+            .video-duration {
+                font-size: 0.7rem;
+                padding: 1px 4px;
+            }
+
+            .player-info {
+                padding: 12px;
+            }
+
+            .player-info h3 {
+                font-size: 1.1rem;
+            }
+
+            .player-info p {
+                font-size: 0.85rem;
+            }
+
+            .no-videos i {
+                font-size: 2.5rem;
+            }
+
+            .no-videos h3 {
+                font-size: 1.1rem;
+            }
+        }
+
+        /* Small phones */
+        @media (max-width: 360px) {
             .header {
-                flex-direction: column;
-                gap: 15px;
-                padding: 15px;
+                padding: 10px 12px;
+            }
+
+            .logo {
+                font-size: 1rem;
+            }
+
+            .page-title {
+                font-size: 1.4rem;
+            }
+
+            .video-thumbnail {
+                height: 120px;
+            }
+
+            .video-thumbnail i {
+                font-size: 1.8rem;
+            }
+
+            .video-info {
+                padding: 8px;
+            }
+
+            .video-title {
+                font-size: 0.9rem;
+            }
+
+            .video-meta {
+                font-size: 0.7rem;
+            }
+        }
+
+        /* Touch improvements */
+        @media (hover: none) {
+            .video-card:hover {
+                transform: none;
             }
             
-            .nav-links {
-                gap: 15px;
+            .video-card:active {
+                transform: scale(0.98);
             }
         }
     </style>
@@ -243,11 +445,23 @@
             <i class="fas fa-play-circle"></i>
             <span>ZimaTube</span>
         </div>
+        
         <nav class="nav-links">
             <a href="index.html"><i class="fas fa-home"></i> Главная</a>
             <a href="../index.html"><i class="fas fa-th"></i> Хаб</a>
         </nav>
+
+        <button class="mobile-menu-btn" id="mobileMenuBtn">
+            <i class="fas fa-bars"></i>
+        </button>
     </header>
+
+    <div class="mobile-nav" id="mobileNav">
+        <div class="mobile-nav-links">
+            <a href="index.html"><i class="fas fa-home"></i> Главная</a>
+            <a href="../index.html"><i class="fas fa-th"></i> Хаб</a>
+        </div>
+    </div>
 
     <div class="container">
         <h1 class="page-title">Популярные видео</h1>
@@ -275,7 +489,7 @@
     </div>
 
     <script>
-        // Данные о видео (можно вынести в отдельный JSON файл)
+        // Данные о видео
         const videosData = {
             "videos": [
                 {
@@ -299,6 +513,28 @@
             ]
         };
 
+        // Мобильное меню
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const mobileNav = document.getElementById('mobileNav');
+
+        mobileMenuBtn.addEventListener('click', function() {
+            mobileNav.classList.toggle('active');
+            const icon = this.querySelector('i');
+            if (mobileNav.classList.contains('active')) {
+                icon.className = 'fas fa-times';
+            } else {
+                icon.className = 'fas fa-bars';
+            }
+        });
+
+        // Закрытие мобильного меню при клике на ссылку
+        document.querySelectorAll('.mobile-nav-links a').forEach(link => {
+            link.addEventListener('click', () => {
+                mobileNav.classList.remove('active');
+                mobileMenuBtn.querySelector('i').className = 'fas fa-bars';
+            });
+        });
+
         // Функция для загрузки данных о видео
         function loadVideos() {
             const container = document.getElementById('videos-container');
@@ -318,7 +554,7 @@
             container.innerHTML = videosData.videos.map(video => `
                 <div class="video-card" onclick="playVideo(${video.id})">
                     <div class="video-thumbnail">
-                        <video preload="metadata" poster="./thumbnails/thumbnail${video.id}.jpg">
+                        <video preload="metadata">
                             <source src="./videos/${video.filename}" type="video/mp4">
                         </video>
                         <i class="fas fa-play-circle"></i>
@@ -350,9 +586,13 @@
             playerTitle.textContent = video.title;
             playerDescription.textContent = video.description;
             modal.style.display = 'flex';
-            player.play();
+            
+            // Вход в полноэкранный режим на мобильных
+            if (window.innerWidth <= 768) {
+                player.play();
+            }
 
-            // Увеличиваем счетчик просмотров (в демо-версии)
+            // Увеличиваем счетчик просмотров
             video.views = incrementViews(video.views);
             updateVideoCard(videoId);
         }
@@ -393,6 +633,12 @@
             if (e.target === this) {
                 closeVideo();
             }
+        });
+
+        // Закрытие мобильного меню при изменении ориентации
+        window.addEventListener('orientationchange', function() {
+            mobileNav.classList.remove('active');
+            mobileMenuBtn.querySelector('i').className = 'fas fa-bars';
         });
 
         // Загружаем видео при загрузке страницы
