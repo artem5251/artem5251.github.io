@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZimaTube - Видеоплатформа</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a1a1a, #2d2d2d);
+            color: #e0e0e0;
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .header {
+            background: linear-gradient(145deg, #2d2d2d, #252525);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #444;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(to right, #a0a0a0, #d0d0d0);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 25px;
+        }
+
+        .nav-links a {
+            color: #b0b0b0;
+            text-decoration: none;
+            transition: color 0.3s;
+            font-weight: 500;
+        }
+
+        .nav-links a:hover {
+            color: #e0e0e0;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+
+        .page-title {
+            font-size: 2.5rem;
+            margin-bottom: 30px;
+            text-align: center;
+            background: linear-gradient(to right, #a0a0a0, #d0d0d0);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .videos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        .video-card {
+            background: linear-gradient(145deg, #2d2d2d, #252525);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            border: 1px solid #3a3a3a;
+            cursor: pointer;
+        }
+
+        .video-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.3);
+            border-color: #5a5a5a;
+        }
+
+        .video-thumbnail {
+            width: 100%;
+            height: 180px;
+            background: #3a3a3a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .video-thumbnail video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .video-thumbnail i {
+            font-size: 3rem;
+            color: #b0b0b0;
+            position: absolute;
+        }
+
+        .video-duration {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background: rgba(0,0,0,0.7);
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+        }
+
+        .video-info {
+            padding: 15px;
+        }
+
+        .video-title {
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+            color: #e0e0e0;
+            font-weight: 600;
+        }
+
+        .video-description {
+            color: #a0a0a0;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .video-meta {
+            display: flex;
+            justify-content: space-between;
+            color: #888;
+            font-size: 0.8rem;
+        }
+
+        .no-videos {
+            text-align: center;
+            padding: 60px 20px;
+            color: #a0a0a0;
+        }
+
+        .no-videos i {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            color: #5a5a5a;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #b0b0b0;
+        }
+
+        .video-player-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .video-player {
+            max-width: 90%;
+            max-height: 90%;
+            background: #2d2d2d;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .video-player video {
+            width: 100%;
+            height: auto;
+            max-height: 70vh;
+        }
+
+        .player-info {
+            padding: 20px;
+        }
+
+        .close-player {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 2rem;
+            cursor: pointer;
+        }
+
+        @media (max-width: 768px) {
+            .videos-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header {
+                flex-direction: column;
+                gap: 15px;
+                padding: 15px;
+            }
+            
+            .nav-links {
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="logo">
+            <i class="fas fa-play-circle"></i>
+            <span>ZimaTube</span>
+        </div>
+        <nav class="nav-links">
+            <a href="index.html"><i class="fas fa-home"></i> Главная</a>
+            <a href="../index.html"><i class="fas fa-th"></i> Хаб</a>
+        </nav>
+    </header>
+
+    <div class="container">
+        <h1 class="page-title">Популярные видео</h1>
+        
+        <div id="videos-container" class="videos-grid">
+            <div class="loading">
+                <i class="fas fa-spinner fa-spin"></i>
+                <p>Загрузка видео...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно для просмотра видео -->
+    <div class="video-player-modal" id="videoModal">
+        <button class="close-player" onclick="closeVideo()">&times;</button>
+        <div class="video-player">
+            <video id="videoPlayer" controls>
+                Ваш браузер не поддерживает видео тег.
+            </video>
+            <div class="player-info">
+                <h3 id="playerTitle"></h3>
+                <p id="playerDescription"></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Данные о видео (можно вынести в отдельный JSON файл)
+        const videosData = {
+            "videos": [
+                {
+                    "id": 1,
+                    "title": "Добро пожаловать на ZimaTube",
+                    "description": "Первое видео на нашей платформе. Рассказываем о возможностях ZimaTube и наших планах на будущее.",
+                    "duration": "02:15",
+                    "views": "1.2K",
+                    "date": "15.12.2023",
+                    "filename": "video1.mp4"
+                },
+                {
+                    "id": 2,
+                    "title": "Обзор новых функций",
+                    "description": "Посмотрите, что нового появилось в последнем обновлении ZimaTube. Улучшенный интерфейс и новые возможности.",
+                    "duration": "05:30",
+                    "views": "856",
+                    "date": "12.12.2023",
+                    "filename": "video2.mp4"
+                },
+                {
+                    "id": 3,
+                    "title": "Как работать с платформой",
+                    "description": "Подробная инструкция по использованию всех функций ZimaTube. От просмотра до создания плейлистов.",
+                    "duration": "03:45",
+                    "views": "1.5K",
+                    "date": "10.12.2023",
+                    "filename": "video3.mp4"
+                },
+                {
+                    "id": 4,
+                    "title": "Будущее видеоплатформ",
+                    "description": "Наши мысли о том, как будут развиваться видеоплатформы в ближайшие годы и что ждет ZimaTube.",
+                    "duration": "07:20",
+                    "views": "2.3K",
+                    "date": "08.12.2023",
+                    "filename": "video4.mp4"
+                },
+                {
+                    "id": 5,
+                    "title": "Секреты качественного видео",
+                    "description": "Полезные советы по созданию качественного видеоконтента для начинающих авторов.",
+                    "duration": "04:50",
+                    "views": "3.1K",
+                    "date": "05.12.2023",
+                    "filename": "video5.mp4"
+                },
+                {
+                    "id": 6,
+                    "title": "Интервью с создателем",
+                    "description": "Эксклюзивное интервью с создателем ZimaTube о вдохновении и процессе разработки.",
+                    "duration": "12:30",
+                    "views": "4.2K",
+                    "date": "01.12.2023",
+                    "filename": "video6.mp4"
+                }
+            ]
+        };
+
+        // Функция для загрузки данных о видео
+        function loadVideos() {
+            const container = document.getElementById('videos-container');
+            
+            if (videosData.videos.length === 0) {
+                container.innerHTML = `
+                    <div class="no-videos">
+                        <i class="fas fa-video-slash"></i>
+                        <h3>Видео пока нет</h3>
+                        <p>Видео будут добавлены в ближайшее время</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Отображаем видео
+            container.innerHTML = videosData.videos.map(video => `
+                <div class="video-card" onclick="playVideo(${video.id})">
+                    <div class="video-thumbnail">
+                        <video preload="metadata" poster="./thumbnails/thumbnail${video.id}.jpg">
+                            <source src="./videos/${video.filename}" type="video/mp4">
+                        </video>
+                        <i class="fas fa-play-circle"></i>
+                        <span class="video-duration">${video.duration}</span>
+                    </div>
+                    <div class="video-info">
+                        <h3 class="video-title">${video.title}</h3>
+                        <p class="video-description">${video.description}</p>
+                        <div class="video-meta">
+                            <span>${video.views} просмотров</span>
+                            <span>${video.date}</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Функция для воспроизведения видео
+        function playVideo(videoId) {
+            const video = videosData.videos.find(v => v.id === videoId);
+            if (!video) return;
+
+            const modal = document.getElementById('videoModal');
+            const player = document.getElementById('videoPlayer');
+            const playerTitle = document.getElementById('playerTitle');
+            const playerDescription = document.getElementById('playerDescription');
+            
+            player.src = `./videos/${video.filename}`;
+            playerTitle.textContent = video.title;
+            playerDescription.textContent = video.description;
+            modal.style.display = 'flex';
+            player.play();
+
+            // Увеличиваем счетчик просмотров (в демо-версии)
+            video.views = incrementViews(video.views);
+            updateVideoCard(videoId);
+        }
+
+        function closeVideo() {
+            const modal = document.getElementById('videoModal');
+            const player = document.getElementById('videoPlayer');
+            
+            player.pause();
+            modal.style.display = 'none';
+        }
+
+        // Вспомогательная функция для увеличения просмотров
+        function incrementViews(views) {
+            const num = parseFloat(views);
+            if (views.includes('K')) {
+                return (num + 0.1).toFixed(1) + 'K';
+            }
+            return (parseInt(views) + 1).toString();
+        }
+
+        // Обновляем карточку видео
+        function updateVideoCard(videoId) {
+            const video = videosData.videos.find(v => v.id === videoId);
+            const cards = document.querySelectorAll('.video-card');
+            cards.forEach(card => {
+                if (card.onclick && card.onclick.toString().includes(videoId)) {
+                    const metaElement = card.querySelector('.video-meta span:first-child');
+                    if (metaElement) {
+                        metaElement.textContent = video.views + ' просмотров';
+                    }
+                }
+            });
+        }
+
+        // Закрытие модального окна по клику вне видео
+        document.getElementById('videoModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeVideo();
+            }
+        });
+
+        // Загружаем видео при загрузке страницы
+        document.addEventListener('DOMContentLoaded', loadVideos);
+    </script>
+</body>
+</html>
