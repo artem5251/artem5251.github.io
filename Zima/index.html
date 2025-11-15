@@ -144,6 +144,18 @@
             margin-bottom: 10px;
         }
 
+        .remember-me {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            color: #b0b0b0;
+        }
+
+        .remember-me input {
+            width: auto;
+        }
+
         /* Chat Page */
         .chat-container {
             display: none;
@@ -355,10 +367,15 @@
             padding: 10px;
             font-size: 0.8rem;
             color: #888;
+            border-bottom: 1px solid #444;
         }
 
         .sync-status.syncing {
             color: #4CAF50;
+        }
+
+        .sync-status.error {
+            color: #ff6b6b;
         }
 
         /* Mobile Styles */
@@ -430,6 +447,11 @@
             <div class="form-group">
                 <label for="password">Пароль</label>
                 <input type="password" id="password" placeholder="Введите пароль">
+            </div>
+
+            <div class="remember-me">
+                <input type="checkbox" id="rememberMe">
+                <label for="rememberMe">Запомнить меня</label>
             </div>
             
             <button class="btn" id="loginBtn" onclick="login()">
@@ -519,7 +541,7 @@
             
             // Не меняйте эти настройки
             apiBase: 'https://api.github.com',
-            syncInterval: 5000, // Синхронизация каждые 5 секунд
+            syncInterval: 3000, // Синхронизация каждые 3 секунды
             maxMessages: 100    // Максимум сообщений в чате
         };
 
@@ -533,22 +555,55 @@
 
         let currentUser = null;
         let messages = [];
-        let lastSyncTime = 0;
+        let lastMessageId = 0;
         let syncInterval = null;
+        let isOnline = true;
+
+        // 🗄️ Функции для работы с localStorage
+        function saveUserToStorage(user, remember) {
+            if (remember) {
+                localStorage.setItem('zima_user', JSON.stringify(user));
+                localStorage.setItem('zima_remember', 'true');
+            } else {
+                sessionStorage.setItem('zima_user', JSON.stringify(user));
+                localStorage.removeItem('zima_user');
+                localStorage.setItem('zima_remember', 'false');
+            }
+        }
+
+        function loadUserFromStorage() {
+            let user = null;
+            const remember = localStorage.getItem('zima_remember') === 'true';
+            
+            if (remember) {
+                user = localStorage.getItem('zima_user');
+            } else {
+                user = sessionStorage.getItem('zima_user');
+            }
+            
+            return user ? JSON.parse(user) : null;
+        }
+
+        function clearUserStorage() {
+            localStorage.removeItem('zima_user');
+            sessionStorage.removeItem('zima_user');
+            localStorage.removeItem('zima_remember');
+        }
 
         // 📡 GitHub API функции
-
-        // Получение сообщений из GitHub Issue
         async function fetchMessagesFromGitHub() {
             try {
+                console.log('🔄 Загрузка сообщений из GitHub...');
+                
                 const response = await fetch(
-                    `${CONFIG.apiBase}/repos/${CONFIG.repoOwner}/${CONFIG.repoName}/issues/${CONFIG.issueNumber}/comments?per_page=100`,
+                    `${CONFIG.apiBase}/repos/${CONFIG.repoOwner}/${CONFIG.repoName}/issues/${CONFIG.issueNumber}/comments?per_page=100&t=${Date.now()}`,
                     {
                         method: 'GET',
                         headers: {
                             'Accept': 'application/vnd.github.v3+json',
                             'Content-Type': 'application/json'
-                        }
+                        },
+                        cache: 'no-cache'
                     }
                 );
 
@@ -578,17 +633,19 @@
                 // Сортируем по времени
                 newMessages.sort((a, b) => a.timestamp - b.timestamp);
                 
+                console.log(`✅ Загружено ${newMessages.length} сообщений`);
                 return newMessages;
 
             } catch (error) {
-                console.error('Ошибка загрузки сообщений:', error);
+                console.error('❌ Ошибка загрузки сообщений:', error);
                 throw error;
             }
         }
 
-        // Отправка сообщения в GitHub Issue
         async function sendMessageToGitHub(message) {
             try {
+                console.log('📤 Отправка сообщения в GitHub...');
+                
                 const response = await fetch(
                     `${CONFIG.apiBase}/repos/${CONFIG.repoOwner}/${CONFIG.repoName}/issues/${CONFIG.issueNumber}/comments`,
                     {
@@ -608,17 +665,16 @@
                 }
 
                 const result = await response.json();
+                console.log('✅ Сообщение отправлено');
                 return result;
 
             } catch (error) {
-                console.error('Ошибка отправки сообщения:', error);
+                console.error('❌ Ошибка отправки сообщения:', error);
                 throw error;
             }
         }
 
         // 🔄 Синхронизация сообщений
-
-        // Загрузка сообщений
         async function loadMessages() {
             const messagesLoading = document.getElementById('messagesLoading');
             messagesLoading.style.display = 'block';
@@ -632,12 +688,15 @@
                     messages.push(welcomeMessage);
                 }
                 
+                // Сохраняем ID последнего сообщения
+                lastMessageId = Math.max(...messages.map(m => m.id), 0);
+                
                 displayAllMessages();
                 updateSyncStatus('Синхронизировано', false);
                 
             } catch (error) {
                 console.error('Ошибка загрузки:', error);
-                updateSyncStatus('Ошибка синхронизации', false);
+                updateSyncStatus('Ошибка синхронизации', false, true);
                 
                 // Показываем сообщение об ошибке
                 const errorMessage = createSystemMessage('⚠️ Не удалось загрузить сообщения. Проверьте настройки GitHub.');
@@ -648,19 +707,27 @@
             }
         }
 
-        // Автоматическая синхронизация
         async function syncMessages() {
+            if (!isOnline) return;
+            
             try {
                 updateSyncStatus('Синхронизация...', true);
                 
                 const newMessages = await fetchMessagesFromGitHub();
-                const currentMessageIds = new Set(messages.map(m => m.githubId));
+                let hasNewMessages = false;
                 
                 // Находим новые сообщения
-                const messagesToAdd = newMessages.filter(msg => !currentMessageIds.has(msg.githubId));
+                for (const newMsg of newMessages) {
+                    const exists = messages.some(msg => msg.id === newMsg.id);
+                    if (!exists && newMsg.id > lastMessageId) {
+                        messages.push(newMsg);
+                        lastMessageId = Math.max(lastMessageId, newMsg.id);
+                        hasNewMessages = true;
+                    }
+                }
                 
-                if (messagesToAdd.length > 0) {
-                    messages.push(...messagesToAdd);
+                if (hasNewMessages) {
+                    // Сортируем по времени
                     messages.sort((a, b) => a.timestamp - b.timestamp);
                     
                     // Ограничиваем количество сообщений
@@ -669,31 +736,31 @@
                     }
                     
                     displayAllMessages();
+                    console.log('🔄 Новые сообщения получены');
                 }
                 
                 updateSyncStatus('Синхронизировано', false);
-                lastSyncTime = Date.now();
                 
             } catch (error) {
                 console.error('Ошибка синхронизации:', error);
-                updateSyncStatus('Ошибка синхронизации', false);
+                updateSyncStatus('Ошибка синхронизации', false, true);
             }
         }
 
-        // Запуск автоматической синхронизации
         function startSync() {
+            console.log('🔄 Запуск синхронизации...');
             syncInterval = setInterval(syncMessages, CONFIG.syncInterval);
         }
 
         function stopSync() {
             if (syncInterval) {
+                console.log('🛑 Остановка синхронизации');
                 clearInterval(syncInterval);
                 syncInterval = null;
             }
         }
 
         // ✨ Вспомогательные функции
-
         function createSystemMessage(text) {
             return {
                 id: Date.now(),
@@ -706,19 +773,25 @@
             };
         }
 
-        function updateSyncStatus(text, syncing) {
+        function updateSyncStatus(text, syncing, isError = false) {
             const statusElement = document.getElementById('syncStatus');
-            statusElement.innerHTML = syncing ? 
-                `<i class="fas fa-sync fa-spin"></i> ${text}` : 
-                `<i class="fas fa-cloud"></i> ${text}`;
-            statusElement.className = `sync-status ${syncing ? 'syncing' : ''}`;
+            if (isError) {
+                statusElement.innerHTML = `<i class="fas fa-exclamation-triangle"></i> ${text}`;
+                statusElement.className = 'sync-status error';
+            } else if (syncing) {
+                statusElement.innerHTML = `<i class="fas fa-sync fa-spin"></i> ${text}`;
+                statusElement.className = 'sync-status syncing';
+            } else {
+                statusElement.innerHTML = `<i class="fas fa-cloud"></i> ${text}`;
+                statusElement.className = 'sync-status';
+            }
         }
 
         // 🔐 Функции авторизации
-
         async function login() {
             const username = document.getElementById('username').value.toLowerCase();
             const password = document.getElementById('password').value;
+            const rememberMe = document.getElementById('rememberMe').checked;
             const errorMessage = document.getElementById('errorMessage');
             const loginLoading = document.getElementById('loginLoading');
             const loginBtn = document.getElementById('loginBtn');
@@ -733,6 +806,9 @@
                         username: username,
                         name: users[username].name
                     };
+                    
+                    // Сохраняем пользователя
+                    saveUserToStorage(currentUser, rememberMe);
                     
                     // Загружаем сообщения
                     await loadMessages();
@@ -772,16 +848,26 @@
             }
             
             currentUser = null;
+            clearUserStorage();
             stopSync();
             document.getElementById('chatPage').style.display = 'none';
             document.getElementById('loginPage').style.display = 'flex';
             document.getElementById('username').value = '';
             document.getElementById('password').value = '';
             document.getElementById('errorMessage').style.display = 'none';
+            document.getElementById('rememberMe').checked = false;
+        }
+
+        function autoLogin() {
+            const savedUser = loadUserFromStorage();
+            if (savedUser && users[savedUser.username]) {
+                document.getElementById('username').value = savedUser.username;
+                document.getElementById('rememberMe').checked = localStorage.getItem('zima_remember') === 'true';
+                // Не авторизуем автоматически, только заполняем форму
+            }
         }
 
         // 💬 Функции чата
-
         async function sendMessage() {
             const messageInput = document.getElementById('messageInput');
             const text = messageInput.value.trim();
@@ -805,6 +891,7 @@
                     
                     // Добавляем локально
                     messages.push(message);
+                    lastMessageId = Math.max(lastMessageId, message.id);
                     displayMessage(message);
                     messageInput.value = '';
                     adjustTextareaHeight();
@@ -865,7 +952,6 @@
         }
 
         // 🎯 Обработчики событий
-
         document.getElementById('messageInput').addEventListener('keydown', function(e) {
             if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
@@ -887,11 +973,30 @@
             }
         });
 
-        // 🚀 Инициализация
+        // События онлайн/офлайн
+        window.addEventListener('online', function() {
+            isOnline = true;
+            updateSyncStatus('Восстановлено соединение', false);
+            syncMessages();
+        });
 
+        window.addEventListener('offline', function() {
+            isOnline = false;
+            updateSyncStatus('Нет соединения', false, true);
+        });
+
+        // 🚀 Инициализация
         document.addEventListener('DOMContentLoaded', function() {
             adjustTextareaHeight();
             updateSyncStatus('Готов к работе', false);
+            autoLogin();
+            
+            // Запускаем синхронизацию если пользователь уже авторизован
+            const savedUser = loadUserFromStorage();
+            if (savedUser && users[savedUser.username]) {
+                // Можно добавить автоматический вход, но для безопасности лучше не делать
+                console.log('Пользователь сохранен:', savedUser.username);
+            }
         });
     </script>
 </body>
