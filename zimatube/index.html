@@ -123,6 +123,30 @@
             color: transparent;
         }
 
+        /* Инструкция */
+        .instructions {
+            background: linear-gradient(145deg, #2d2d2d, #252525);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 30px;
+            border: 1px solid #3a3a3a;
+        }
+
+        .instructions h2 {
+            color: #e0e0e0;
+            margin-bottom: 15px;
+            font-size: 1.4rem;
+        }
+
+        .instructions-content {
+            color: #b0b0b0;
+            line-height: 1.6;
+        }
+
+        .instructions-content p {
+            margin-bottom: 10px;
+        }
+
         /* Videos Grid */
         .videos-grid {
             display: grid;
@@ -359,6 +383,10 @@
             .container {
                 padding: 15px 10px;
             }
+
+            .instructions {
+                padding: 20px;
+            }
         }
 
         @media (max-width: 480px) {
@@ -465,6 +493,16 @@
 
     <div class="container">
         <h1 class="page-title">видео</h1>
+        
+        <!-- Инструкция по добавлению видео -->
+        <div class="instructions">
+            <h2><i class="fas fa-info-circle"></i> Инструкция по добавлению видео</h2>
+            <div class="instructions-content">
+            Напишите в тг @Art_em525 скиньте анкету 
+            Имя,название видео, описание
+            и потом видео
+            </div>
+        </div>
         
         <div id="videos-container" class="videos-grid">
             <div class="loading">
