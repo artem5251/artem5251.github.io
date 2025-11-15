@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zima Hub</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a1a1a, #2d2d2d);
+            color: #e0e0e0;
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 50px;
+            padding: 30px 0;
+            border-bottom: 1px solid #444;
+        }
+
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            background: linear-gradient(to right, #a0a0a0, #d0d0d0);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: #b0b0b0;
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        .hub-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+            margin-top: 40px;
+        }
+
+        .hub-card {
+            background: linear-gradient(145deg, #2d2d2d, #252525);
+            border-radius: 12px;
+            padding: 25px;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            border: 1px solid #3a3a3a;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .hub-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.3);
+            border-color: #5a5a5a;
+        }
+
+        .card-icon {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            color: #b0b0b0;
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: #e0e0e0;
+        }
+
+        .card-description {
+            color: #a0a0a0;
+            margin-bottom: 20px;
+            flex-grow: 1;
+        }
+
+        .btn {
+            display: inline-block;
+            background: linear-gradient(to right, #4a4a4a, #636363);
+            color: white;
+            padding: 12px 25px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+        }
+
+        .btn:hover {
+            background: linear-gradient(to right, #5a5a5a, #737373);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+            transform: translateY(-2px);
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 60px;
+            padding: 20px;
+            color: #888;
+            border-top: 1px solid #444;
+        }
+
+        .loading {
+            text-align: center;
+            font-size: 1.2rem;
+            color: #b0b0b0;
+            padding: 40px;
+        }
+
+        @media (max-width: 768px) {
+            .hub-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Zima Hub</h1>
+            <p class="subtitle">Центральный узел всех моих проектов. Выберите проект для перехода.</p>
+        </header>
+        
+        <div id="hub-grid" class="hub-grid">
+            <div class="loading">
+                <i class="fas fa-spinner fa-spin"></i> Загрузка проектов...
+            </div>
+        </div>
+        
+        <footer>
+            <p>&copy; 2023 Zima Hub. Все права защищены.</p>
+        </footer>
+    </div>
+
+    <script>
+        // JSON данные с проектами
+        const projectsData = {
+            "projects": [
+                {
+                    "name": "ZimaTube",
+                    "description": "Видеоплатформа с уникальным контентом и удобным интерфейсом для просмотра и загрузки видео.",
+                    "url": "zimatube.html",
+                    "icon": "fas fa-play-circle"
+                },
+                {
+                    "name": "My Games",
+                    "description": "Коллекция интересных игр, разработанных с использованием современных веб-технологий.",
+                    "url": "mygames.html",
+                    "icon": "fas fa-gamepad"
+                },
+                {
+                    "name": "Zima OS",
+                    "description": "Инновационная операционная система с уникальным интерфейсом и расширенными возможностями.",
+                    "url": "zimaos.html",
+                    "icon": "fas fa-desktop"
+                }
+            ]
+        };
+
+        // Функция для загрузки и отображения проектов
+        function loadProjects() {
+            const hubGrid = document.getElementById('hub-grid');
+            hubGrid.innerHTML = ''; // Очищаем контейнер
+            
+            projectsData.projects.forEach(project => {
+                const card = document.createElement('div');
+                card.className = 'hub-card';
+                
+                card.innerHTML = `
+                    <div class="card-icon">
+                        <i class="${project.icon}"></i>
+                    </div>
+                    <h3 class="card-title">${project.name}</h3>
+                    <p class="card-description">${project.description}</p>
+                    <a href="${project.url}" class="btn">Перейти</a>
+                `;
+                
+                hubGrid.appendChild(card);
+            });
+        }
+
+        // Имитация загрузки данных с сервера
+        setTimeout(() => {
+            loadProjects();
+        }, 800);
+    </script>
+</body>
+</html>
