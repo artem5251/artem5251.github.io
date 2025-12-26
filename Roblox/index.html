@@ -66,7 +66,6 @@
             text-align: center;
             padding: 40px;
             max-width: 520px;
-            animation: fadeIn 1.2s ease-out;
         }
 
         /* Основная иконка */
@@ -86,7 +85,6 @@
             align-items: center;
             justify-content: center;
             box-shadow: 0 10px 30px rgba(0, 97, 255, 0.3);
-            animation: float 3s ease-in-out infinite;
         }
 
         .icon-check {
@@ -126,10 +124,9 @@
             color: #a8e6cf;
             border: 1px solid rgba(168, 230, 207, 0.3);
             backdrop-filter: blur(5px);
-            animation: pulse 2s infinite;
         }
 
-        /* Декоративные элементы */
+        /* Декоративные точки */
         .dots {
             position: absolute;
             width: 100%;
@@ -143,23 +140,6 @@
             height: 6px;
             background: rgba(255, 255, 255, 0.2);
             border-radius: 50%;
-        }
-
-        /* Анимации */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-15px); }
-        }
-
-        @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(76, 201, 240, 0.4); }
-            70% { box-shadow: 0 0 0 12px rgba(76, 201, 240, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(76, 201, 240, 0); }
         }
     </style>
 </head>
@@ -195,7 +175,7 @@
     </div>
 
     <script>
-        // Создание декоративных точек
+        // Создание декоративных точек (статичных)
         document.addEventListener('DOMContentLoaded', function() {
             const dotsContainer = document.getElementById('dotsContainer');
             const dotCount = 25;
@@ -208,19 +188,8 @@
                 dot.style.left = `${Math.random() * 100}%`;
                 dot.style.top = `${Math.random() * 100}%`;
                 
-                // Случайная задержка анимации
-                dot.style.animation = `pulse ${2 + Math.random() * 3}s infinite ${Math.random() * 2}s`;
-                
                 dotsContainer.appendChild(dot);
             }
-            
-            // Анимация появления текста
-            const textElements = document.querySelectorAll('.thank-you-text, .subtitle, .status');
-            textElements.forEach((el, index) => {
-                el.style.animationDelay = `${0.5 + index * 0.3}s`;
-                el.style.animation = 'fadeIn 1s ease-out forwards';
-                el.style.opacity = '0';
-            });
         });
     </script>
 </body>
