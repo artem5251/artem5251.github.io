@@ -2,26 +2,29 @@
   {
     "id": 1,
     "userId": 1,
-    "title": "Совещание команды",
+    "username": "user1",
+    "title": "Еженедельное совещание",
     "date": "2024-12-20",
     "time": "10:00",
     "type": "meeting",
-    "description": "Еженедельное совещание по проекту",
+    "description": "Совещание команды разработки",
     "important": true
   },
   {
     "id": 2,
     "userId": 1,
+    "username": "user1",
     "title": "Тренировка",
     "date": "2024-12-20",
     "time": "18:00",
     "type": "event",
-    "description": "Фитнес клуб",
+    "description": "Фитнес-клуб",
     "important": false
   },
   {
     "id": 3,
     "userId": 2,
+    "username": "user2",
     "title": "Встреча с клиентом",
     "date": "2024-12-21",
     "time": "14:00",
