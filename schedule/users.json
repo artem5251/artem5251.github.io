@@ -19,5 +19,12 @@
     "password": "Bonia525#",
     "email": "admin@schedule.ru",
     "role": "admin"
+  },
+  {
+    "id": 4,
+    "username": "Lena",
+    "password": "8267268",
+    "email": "none",
+    "role": "user"
   }
 ]
