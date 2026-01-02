@@ -319,3 +319,173 @@ function displaySchedule(events) {
     
     emptyState.style.display = 'none';
     
+    // Группируем события по датам
+    const eventsByDate = {};
+    events.forEach(event => {
+        const date = event.date || new Date().toISOString().split('T')[0];
+        if (!eventsByDate[date]) {
+            eventsByDate[date] = [];
+        }
+        eventsByDate[date].push(event);
+    });
+    
+    // Сортируем даты
+    const sortedDates = Object.keys(eventsByDate).sort();
+    
+    // Создаем карточки
+    let html = '';
+    
+    sortedDates.forEach(date => {
+        const dateEvents = eventsByDate[date];
+        const dateObj = new Date(date);
+        const dayName = getDayName(dateObj.getDay());
+        const formattedDate = formatDate(dateObj);
+        
+        html += `
+            <div class="day-card">
+                <div class="day-header">
+                    <div>
+                        <h3 class="day-title">${dayName}</h3>
+                        <div class="day-date">${formattedDate}</div>
+                    </div>
+                    <span class="event-count">${dateEvents.length} событий</span>
+                </div>
+                <ul class="events-list">
+                    ${dateEvents.map(event => `
+                        <li class="event-item ${event.important ? 'important' : ''}">
+                            <div class="event-header">
+                                <div class="event-title">${event.title}</div>
+                                <span class="event-time">${event.time}</span>
+                            </div>
+                            <div class="event-type">${getEventTypeLabel(event.type)}</div>
+                            ${event.description ? `
+                                <div class="event-description">${event.description}</div>
+                            ` : ''}
+                        </li>
+                    `).join('')}
+                </ul>
+            </div>
+        `;
+    });
+    
+    container.innerHTML = html;
+    
+    // Добавляем обработчики для событий
+    document.querySelectorAll('.event-item').forEach((item, index) => {
+        item.addEventListener('click', () => {
+            // Можно добавить редактирование по клику
+            console.log('Событие кликнуто:', events.flat()[index]);
+        });
+    });
+}
+
+// Выход из системы
+function logout() {
+    currentUser = null;
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('currentUser');
+    
+    document.getElementById('userPage').classList.remove('active');
+    document.getElementById('authPage').classList.add('active');
+    
+    // Очищаем формы
+    document.getElementById('loginUsername').value = '';
+    document.getElementById('loginPassword').value = '';
+    document.getElementById('regUsername').value = '';
+    document.getElementById('regEmail').value = '';
+    document.getElementById('regPassword').value = '';
+    document.getElementById('confirmPassword').value = '';
+    
+    switchAuthTab('login');
+    showNotification('Вы вышли из системы', 'info');
+}
+
+// Работа с модальным окном событий
+function showEventModal() {
+    document.getElementById('eventModal').classList.add('active');
+}
+
+function hideEventModal() {
+    document.getElementById('eventModal').classList.remove('active');
+    document.getElementById('eventForm').reset();
+}
+
+function setupDateForNewEvent() {
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('eventDate').value = today;
+    document.getElementById('eventDate').min = today;
+}
+
+// Сохранение события
+function saveEvent(e) {
+    e.preventDefault();
+    
+    if (!currentUser) {
+        showNotification('Необходимо войти в систему', 'error');
+        return;
+    }
+    
+    const event = {
+        id: Date.now(),
+        userId: currentUser.id || currentUser.username,
+        title: document.getElementById('eventTitle').value.trim(),
+        date: document.getElementById('eventDate').value,
+        time: document.getElementById('eventTime').value,
+        type: document.getElementById('eventType').value,
+        description: document.getElementById('eventDescription').value.trim(),
+        important: document.getElementById('eventImportant').checked,
+        createdAt: new Date().toISOString()
+    };
+    
+    if (!event.title) {
+        showNotification('Введите название события', 'error');
+        return;
+    }
+    
+    // В реальном проекте здесь будет отправка на сервер
+    schedule.push(event);
+    localStorage.setItem('userSchedule', JSON.stringify(schedule));
+    
+    showNotification('Событие добавлено', 'success');
+    hideEventModal();
+    loadUserSchedule();
+}
+
+// Уведомления
+function showNotification(message, type = 'info') {
+    const notification = document.getElementById('notification');
+    notification.textContent = message;
+    notification.className = `notification ${type}`;
+    notification.style.display = 'block';
+    
+    setTimeout(() => {
+        notification.style.display = 'none';
+    }, 3000);
+}
+
+// Вспомогательные функции
+function getDayName(dayIndex) {
+    const days = [
+        'Воскресенье', 'Понедельник', 'Вторник', 'Среда',
+        'Четверг', 'Пятница', 'Суббота'
+    ];
+    return days[dayIndex];
+}
+
+function formatDate(date) {
+    return date.toLocaleDateString('ru-RU', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+    });
+}
+
+function getEventTypeLabel(type) {
+    const labels = {
+        meeting: 'Встреча',
+        task: 'Задача',
+        reminder: 'Напоминание',
+        event: 'Событие'
+    };
+    return labels[type] || type;
+}
