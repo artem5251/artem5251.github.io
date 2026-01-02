@@ -1,0 +1,35 @@
+[
+  {
+    "id": 1,
+    "userId": 1,
+    "username": "Татьяна",
+    "title": "Работа",
+    "date": "2024-12-25",
+    "time": "09:00",
+    "type": "task",
+    "description": "Ежедневные задачи",
+    "important": true
+  },
+  {
+    "id": 2,
+    "userId": 2,
+    "username": "Рома",
+    "title": "Встреча",
+    "date": "2024-12-25",
+    "time": "14:00",
+    "type": "meeting",
+    "description": "С клиентом",
+    "important": true
+  },
+  {
+    "id": 3,
+    "userId": 1,
+    "username": "Татьяна",
+    "title": "Тренировка",
+    "date": "2024-12-25",
+    "time": "18:00",
+    "type": "event",
+    "description": "Спортзал",
+    "important": false
+  }
+]
