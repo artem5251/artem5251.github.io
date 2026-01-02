@@ -1,35 +1,46 @@
 [
   {
     "id": 1,
-    "userId": 1,
-    "username": "Татьяна",
-    "title": "Работа",
+    "title": "Общее собрание",
     "date": "2024-12-25",
-    "time": "09:00",
-    "type": "task",
-    "description": "Ежедневные задачи",
-    "important": true
+    "time": "10:00",
+    "type": "meeting",
+    "description": "Еженедельное собрание для всех сотрудников",
+    "important": true,
+    "forAll": true
   },
   {
     "id": 2,
-    "userId": 2,
-    "username": "Рома",
-    "title": "Встреча",
-    "date": "2024-12-25",
-    "time": "14:00",
-    "type": "meeting",
-    "description": "С клиентом",
-    "important": true
+    "title": "Корпоративное мероприятие",
+    "date": "2024-12-28",
+    "time": "18:00",
+    "type": "event",
+    "description": "Новогодний корпоратив",
+    "important": true,
+    "forAll": true
   },
   {
     "id": 3,
     "userId": 1,
     "username": "Татьяна",
-    "title": "Тренировка",
-    "date": "2024-12-25",
-    "time": "18:00",
-    "type": "event",
-    "description": "Спортзал",
-    "important": false
+    "title": "Индивидуальная встреча",
+    "date": "2024-12-26",
+    "time": "11:00",
+    "type": "meeting",
+    "description": "Личная встреча с руководителем",
+    "important": false,
+    "forAll": false
+  },
+  {
+    "id": 4,
+    "userId": 2,
+    "username": "Рома",
+    "title": "Работа с документами",
+    "date": "2024-12-27",
+    "time": "15:00",
+    "type": "task",
+    "description": "Подготовка отчетов",
+    "important": false,
+    "forAll": false
   }
 ]
