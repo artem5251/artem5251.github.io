@@ -2,17 +2,25 @@
   {
     "id": 1,
     "username": "user1",
-    "password": "password123"
+    "password": "password123",
+    "email": "user1@example.com",
+    "role": "user",
+    "createdAt": "2024-01-01"
   },
   {
     "id": 2,
     "username": "user2",
-    "password": "password456"
+    "password": "password456",
+    "email": "user2@example.com",
+    "role": "user",
+    "createdAt": "2024-01-02"
   },
   {
     "id": 3,
     "username": "admin",
     "password": "Bonia525#",
-    "role": "admin"
+    "email": "admin@schedule.ru",
+    "role": "admin",
+    "createdAt": "2024-01-01"
   }
 ]
