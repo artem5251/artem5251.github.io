@@ -3,7 +3,7 @@ const CONFIG = {
     USERS_URL: 'users.json',
     SCHEDULE_URL: 'data/schedule.json',
     TELEGRAM_BOT_TOKEN: '8562706124:AAGCLf_PRrrDSbdiyRvpq68OCpDJDAgkY3s',
-    TELEGRAM_CHAT_ID: 'YOUR_CHAT_ID', // Замените на ваш ID
+    TELEGRAM_CHAT_ID: '5557146078', // Замените на ваш ID
     ADMIN_USERNAME: 'admin',
     ADMIN_PASSWORD: 'Bonia525#'
 };
