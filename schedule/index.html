@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DarkSchedule - Расписание</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📅</text></svg>">
+</head>
+<body>
+    <!-- Уведомление -->
+    <div id="notification" class="notification"></div>
+
+    <!-- Страница авторизации -->
+    <div id="authPage" class="page active">
+        <div class="container">
+            <div class="auth-container">
+                <div class="logo">
+                    <i class="fas fa-calendar-alt"></i>
+                    <h1>DarkSchedule</h1>
+                    <p class="tagline">Управление расписанием в тёмных тонах</p>
+                </div>
+
+                <div class="auth-box">
+                    <div class="auth-tabs">
+                        <button class="tab-btn active" data-tab="login">Вход</button>
+                        <button class="tab-btn" data-tab="register">Регистрация</button>
+                    </div>
+
+                    <!-- Форма входа -->
+                    <div id="loginTab" class="auth-form active">
+                        <h2>Вход в систему</h2>
+                        <div class="form-group">
+                            <label for="loginUsername">Логин</label>
+                            <div class="input-with-icon">
+                                <i class="fas fa-user"></i>
+                                <input type="text" id="loginUsername" placeholder="Введите логин" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="loginPassword">Пароль</label>
+                            <div class="input-with-icon">
+                                <i class="fas fa-lock"></i>
+                                <input type="password" id="loginPassword" placeholder="Введите пароль" required>
+                            </div>
+                        </div>
+                        <div class="form-options">
+                            <label class="checkbox">
+                                <input type="checkbox" id="rememberMe">
+                                <span>Запомнить меня</span>
+                            </label>
+                        </div>
+                        <button id="loginBtn" class="btn btn-primary btn-block">
+                            <i class="fas fa-sign-in-alt"></i> Войти
+                        </button>
+                        <div class="auth-footer">
+                            <p>Демо доступ: user1 / password123</p>
+                        </div>
+                    </div>
+
+                    <!-- Форма регистрации -->
+                    <div id="registerTab" class="auth-form">
+                        <h2>Регистрация</h2>
+                        <div class="form-group">
+                            <label for="regUsername">Логин</label>
+                            <div class="input-with-icon">
+                                <i class="fas fa-user"></i>
+                                <input type="text" id="regUsername" placeholder="Придумайте логин" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="regEmail">Email</label>
+                            <div class="input-with-icon">
+                                <i class="fas fa-envelope"></i>
+                                <input type="email" id="regEmail" placeholder="Ваш email" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="regPassword">Пароль</label>
+                            <div class="input-with-icon">
+                                <i class="fas fa-lock"></i>
+                                <input type="password" id="regPassword" placeholder="Придумайте пароль" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="confirmPassword">Подтвердите пароль</label>
+                            <div class="input-with-icon">
+                                <i class="fas fa-lock"></i>
+                                <input type="password" id="confirmPassword" placeholder="Повторите пароль" required>
+                            </div>
+                        </div>
+                        <button id="registerBtn" class="btn btn-primary btn-block">
+                            <i class="fas fa-user-plus"></i> Зарегистрироваться
+                        </button>
+                        <div class="auth-footer">
+                            <p>При регистрации данные отправляются в Telegram</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    <h3><i class="fas fa-info-circle"></i> О системе</h3>
+                    <ul>
+                        <li><i class="fas fa-check"></i> Управление расписанием</li>
+                        <li><i class="fas fa-check"></i> Тёмный интерфейс</li>
+                        <li><i class="fas fa-check"></i> Telegram уведомления</li>
+                        <li><i class="fas fa-check"></i> Административная панель</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Страница пользователя -->
+    <div id="userPage" class="page">
+        <header>
+            <div class="container">
+                <div class="header-content">
+                    <div class="logo-small">
+                        <i class="fas fa-calendar-alt"></i>
+                        <span>DarkSchedule</span>
+                    </div>
+                    <div class="user-menu">
+                        <span id="userGreeting">Привет, User!</span>
+                        <button id="logoutBtn" class="btn btn-outline">
+                            <i class="fas fa-sign-out-alt"></i> Выйти
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="container">
+            <div class="main-header">
+                <h2><i class="fas fa-calendar-day"></i> Мое расписание</h2>
+                <button id="addEventBtn" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Добавить событие
+                </button>
+            </div>
+
+            <div id="scheduleContainer" class="schedule-grid">
+                <!-- Расписание будет загружено здесь -->
+            </div>
+
+            <div id="emptySchedule" class="empty-state">
+                <i class="fas fa-calendar-plus"></i>
+                <h3>Расписание пусто</h3>
+                <p>Добавьте свое первое событие</p>
+                <button id="addFirstEventBtn" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Добавить событие
+                </button>
+            </div>
+        </main>
+    </div>
+
+    <!-- Модальное окно добавления события -->
+    <div id="eventModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-calendar-plus"></i> Новое событие</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="eventForm">
+                    <div class="form-group">
+                        <label for="eventTitle">Название события</label>
+                        <input type="text" id="eventTitle" required>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="eventDate">Дата</label>
+                            <input type="date" id="eventDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="eventTime">Время</label>
+                            <input type="time" id="eventTime" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="eventType">Тип события</label>
+                        <select id="eventType">
+                            <option value="meeting">Встреча</option>
+                            <option value="task">Задача</option>
+                            <option value="reminder">Напоминание</option>
+                            <option value="event">Событие</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="eventDescription">Описание</label>
+                        <textarea id="eventDescription" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="checkbox">
+                            <input type="checkbox" id="eventImportant">
+                            <span>Важное событие</span>
+                        </label>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline modal-close">Отмена</button>
+                        <button type="submit" class="btn btn-primary">Сохранить</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ссылка на скрипт -->
+    <script src="script.js"></script>
+</body>
+</html>
