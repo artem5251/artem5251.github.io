@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DarkSchedule - Админ панель</title>
+    <title>Расписание - Админ панель</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>👑</text></svg>">
 </head>
 <body>
-    <!-- Уведомление -->
     <div id="notification" class="notification"></div>
     
     <div class="container">
@@ -147,6 +147,392 @@
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <script>
+        // Конфигурация
+        const CONFIG = {
+            USERS_URL: 'users.json',
+            SCHEDULE_URL: 'https://artem5251.github.io/schedule/data/schedule.json',
+            ADMIN_USERNAME: 'admin'
+        };
+
+        // Глобальные переменные
+        let users = [];
+        let events = [];
+
+        // Проверка авторизации
+        function checkAuth() {
+            const savedUser = localStorage.getItem('currentUser');
+            if (!savedUser) {
+                window.location.href = 'index.html';
+                return false;
+            }
+
+            try {
+                const user = JSON.parse(savedUser);
+                if (user.username !== CONFIG.ADMIN_USERNAME) {
+                    window.location.href = 'index.html';
+                    return false;
+                }
+                
+                document.getElementById('adminName').textContent = user.username;
+                return true;
+            } catch (e) {
+                window.location.href = 'index.html';
+                return false;
+            }
+        }
+
+        // Загрузка данных
+        async function loadData() {
+            try {
+                // Загрузка пользователей
+                const usersResponse = await fetch(CONFIG.USERS_URL);
+                users = await usersResponse.json();
+                
+                // Загрузка событий
+                try {
+                    const scheduleResponse = await fetch(CONFIG.SCHEDULE_URL);
+                    events = await scheduleResponse.json();
+                } catch (e) {
+                    console.log('Schedule.json не найден, создаем пустой массив');
+                    events = [];
+                }
+                
+                // Обновление интерфейса
+                updateStats();
+                displayUsers();
+                populateUserSelect();
+                displayEvents();
+                
+                showNotification('Данные загружены', 'success');
+            } catch (error) {
+                console.error('Ошибка загрузки:', error);
+                showNotification('Ошибка загрузки данных', 'error');
+                
+                // Демо данные
+                loadDemoData();
+            }
+        }
+
+        // Демо данные
+        function loadDemoData() {
+            users = [
+                { id: 1, username: 'Татьяна', email: 'none', role: 'user' },
+                { id: 2, username: 'Рома', email: 'none', role: 'user' },
+                { id: 3, username: 'admin', email: 'admin@schedule.ru', role: 'admin' }
+            ];
+            
+            const today = new Date().toISOString().split('T')[0];
+            events = [
+                {
+                    id: 1,
+                    title: 'Общее собрание',
+                    date: today,
+                    time: '10:00',
+                    type: 'meeting',
+                    description: 'Для всех сотрудников',
+                    important: true,
+                    forAll: true
+                }
+            ];
+            
+            updateStats();
+            displayUsers();
+            populateUserSelect();
+            displayEvents();
+        }
+
+        // Обновление статистики
+        function updateStats() {
+            const today = new Date().toISOString().split('T')[0];
+            const todayEvents = events.filter(e => e.date === today).length;
+            
+            document.getElementById('usersCount').textContent = users.length;
+            document.getElementById('eventsCount').textContent = events.length;
+            document.getElementById('todayEvents').textContent = todayEvents;
+        }
+
+        // Отображение пользователей
+        function displayUsers() {
+            const container = document.getElementById('usersList');
+            container.innerHTML = '';
+            
+            users.forEach(user => {
+                const row = document.createElement('div');
+                row.className = 'table-row';
+                
+                const roleColor = user.role === 'admin' ? 'var(--primary)' : 'var(--text)';
+                const roleIcon = user.role === 'admin' ? '👑' : '👤';
+                const roleText = user.role === 'admin' ? 'Админ' : 'Пользователь';
+                
+                row.innerHTML = `
+                    <div>${user.id || '—'}</div>
+                    <div><strong>${user.username}</strong></div>
+                    <div style="color: var(--text-secondary);">${user.email || '—'}</div>
+                    <div style="color: ${roleColor};">
+                        ${roleIcon} ${roleText}
+                    </div>
+                `;
+                
+                container.appendChild(row);
+            });
+        }
+
+        // Заполнение выпадающего списка пользователей
+        function populateUserSelect() {
+            const select = document.getElementById('eventUser');
+            select.innerHTML = '<option value="">Выберите пользователя</option>';
+            
+            users.forEach(user => {
+                if (user.role !== 'admin') {
+                    const option = document.createElement('option');
+                    option.value = user.id;
+                    option.textContent = `${user.username}`;
+                    select.appendChild(option);
+                }
+            });
+        }
+
+        // Отображение событий
+        function displayEvents() {
+            const container = document.getElementById('eventsList');
+            if (!container) return;
+            
+            if (events.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-calendar-times"></i>
+                        <p>Нет событий</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Сортируем события по дате
+            const sortedEvents = [...events].sort((a, b) => {
+                const dateA = new Date(a.date + 'T' + (a.time || '00:00'));
+                const dateB = new Date(b.date + 'T' + (b.time || '00:00'));
+                return dateA - dateB;
+            });
+            
+            container.innerHTML = '';
+            
+            sortedEvents.forEach(event => {
+                const eventElement = document.createElement('div');
+                eventElement.className = `event-item ${event.important ? 'important' : ''}`;
+                
+                const user = users.find(u => u.id == event.userId) || { username: 'Неизвестно' };
+                const typeLabels = {
+                    meeting: 'Встреча',
+                    task: 'Задача',
+                    reminder: 'Напоминание',
+                    event: 'Событие',
+                    work: 'Работа'
+                };
+                
+                eventElement.innerHTML = `
+                    <div class="event-info">
+                        <div class="event-title">${event.title}</div>
+                        <div class="event-meta">
+                            ${event.forAll ? 
+                                '<span class="for-all-badge">Для всех</span>' : 
+                                `<span>👤 ${user.username}</span> •`
+                            }
+                            <span> 📅 ${formatDate(event.date)}</span> • 
+                            <span> ⏰ ${event.time || '—'}</span> • 
+                            <span> ${typeLabels[event.type] || event.type}</span>
+                            ${event.important ? ' • <span class="important-badge">⭐ Важное</span>' : ''}
+                        </div>
+                        ${event.description ? `
+                            <div class="event-description">${event.description}</div>
+                        ` : ''}
+                    </div>
+                    <div class="event-actions">
+                        <button class="btn-icon edit" onclick="editEvent(${event.id})" title="Редактировать">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn-icon delete" onclick="deleteEvent(${event.id})" title="Удалить">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+                
+                container.appendChild(eventElement);
+            });
+        }
+
+        // Добавление события
+        document.getElementById('addEventForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const title = document.getElementById('eventTitle').value.trim();
+            const userId = document.getElementById('eventUser').value;
+            const date = document.getElementById('eventDate').value;
+            const time = document.getElementById('eventTime').value;
+            const type = document.getElementById('eventType').value;
+            const description = document.getElementById('eventDescription').value.trim();
+            const important = document.getElementById('eventImportant').checked;
+            const forAll = document.getElementById('eventForAll').checked;
+            
+            // Валидация
+            if (!title) {
+                showNotification('Введите название события', 'error');
+                return;
+            }
+            
+            if (!forAll && !userId) {
+                showNotification('Выберите пользователя или отметьте "Для всех"', 'error');
+                return;
+            }
+            
+            // Создаем новое событие
+            const newEvent = {
+                id: Date.now(),
+                title: title,
+                date: date,
+                time: time,
+                type: type,
+                description: description,
+                important: important,
+                forAll: forAll,
+                createdAt: new Date().toISOString()
+            };
+            
+            // Если не для всех, добавляем информацию о пользователе
+            if (!forAll && userId) {
+                const user = users.find(u => u.id == userId);
+                if (user) {
+                    newEvent.userId = parseInt(userId);
+                    newEvent.username = user.username;
+                }
+            }
+            
+            // Добавляем событие
+            events.push(newEvent);
+            
+            // Обновляем интерфейс
+            updateStats();
+            displayEvents();
+            
+            // Очищаем форму
+            document.getElementById('addEventForm').reset();
+            document.getElementById('eventDate').value = new Date().toISOString().split('T')[0];
+            
+            showNotification(`Событие "${title}" добавлено`, 'success');
+        });
+
+        // Редактирование события
+        function editEvent(eventId) {
+            const event = events.find(e => e.id == eventId);
+            if (!event) {
+                showNotification('Событие не найдено', 'error');
+                return;
+            }
+            
+            const newTitle = prompt('Новое название события:', event.title);
+            if (newTitle === null || newTitle.trim() === '') return;
+            
+            const newDescription = prompt('Новое описание:', event.description || '');
+            
+            event.title = newTitle.trim();
+            event.description = newDescription ? newDescription.trim() : '';
+            
+            displayEvents();
+            showNotification('Событие обновлено', 'success');
+        }
+
+        // Удаление события
+        function deleteEvent(eventId) {
+            if (!confirm('Удалить это событие?')) return;
+            
+            events = events.filter(e => e.id != eventId);
+            
+            updateStats();
+            displayEvents();
+            showNotification('Событие удалено', 'success');
+        }
+
+        // Экспорт данных
+        document.getElementById('exportBtn').addEventListener('click', function() {
+            const dataStr = JSON.stringify(events, null, 2);
+            const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+            
+            const exportFileDefaultName = 'schedule-export.json';
+            const linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', exportFileDefaultName);
+            linkElement.click();
+            
+            showNotification('Данные экспортированы', 'success');
+        });
+
+        // Обновление данных
+        document.getElementById('refreshBtn').addEventListener('click', function() {
+            loadData();
+        });
+
+        // Выход
+        document.getElementById('logoutBtn').addEventListener('click', function() {
+            localStorage.removeItem('currentUser');
+            window.location.href = 'index.html';
+        });
+
+        // Вспомогательные функции
+        function formatDate(dateString) {
+            try {
+                const date = new Date(dateString);
+                if (isNaN(date.getTime())) return dateString;
+                return date.toLocaleDateString('ru-RU');
+            } catch (e) {
+                return dateString;
+            }
+        }
+
+        function showNotification(message, type = 'info') {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = `notification ${type}`;
+            notification.style.display = 'block';
+            
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 3000);
+        }
+
+        // Инициализация
+        document.addEventListener('DOMContentLoaded', function() {
+            if (checkAuth()) {
+                // Устанавливаем сегодняшнюю дату
+                const today = new Date().toISOString().split('T')[0];
+                const dateInput = document.getElementById('eventDate');
+                if (dateInput) {
+                    dateInput.value = today;
+                    dateInput.min = today;
+                }
+                
+                // Загружаем данные
+                loadData();
+                
+                // Обработка чекбокса "Для всех"
+                const forAllCheckbox = document.getElementById('eventForAll');
+                const userSelectGroup = document.getElementById('userSelectGroup');
+                
+                if (forAllCheckbox && userSelectGroup) {
+                    forAllCheckbox.addEventListener('change', function() {
+                        const userSelect = document.getElementById('eventUser');
+                        if (this.checked) {
+                            userSelectGroup.style.opacity = '0.5';
+                            userSelect.disabled = true;
+                            userSelect.required = false;
+                        } else {
+                            userSelectGroup.style.opacity = '1';
+                            userSelect.disabled = false;
+                            userSelect.required = true;
+                        }
+                    });
+                }
+            }
+        });
+    </script>
 </body>
 </html>
