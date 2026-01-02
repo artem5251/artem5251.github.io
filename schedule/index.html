@@ -45,18 +45,14 @@
                                 <input type="password" id="loginPassword" placeholder="Введите пароль" required>
                             </div>
                         </div>
-                        <div class="form-options">
-                            <label class="checkbox">
-                                <input type="checkbox" id="rememberMe">
-                                <span>Запомнить меня</span>
-                            </label>
-                        </div>
                         <button id="loginBtn" class="btn btn-primary btn-block">
                             <i class="fas fa-sign-in-alt"></i> Войти
                         </button>
                         <div class="auth-footer">
-                            <p>Есть ошибки скоро исправим</p>
-                            <p class="admin-hint">     </p>
+                            <p>Для входа используйте данные из users.json</p>
+                            <p style="margin-top: 5px; font-size: 12px; color: var(--warning);">
+                                Админ: Ctrl+Alt+A для автозаполнения
+                            </p>
                         </div>
                     </div>
 
@@ -96,19 +92,17 @@
                         </button>
                         <div class="auth-footer">
                             <p>При регистрации данные отправляются в Telegram</p>
-                            <p class="warning-text">После регистрации войдите с вашими данными</p>
                         </div>
                     </div>
                 </div>
 
                 <div class="info-box">
                     <h3><i class="fas fa-info-circle"></i> О системе</h3>
-                    <ul class="info-list">
+                    <ul>
                         <li><i class="fas fa-check"></i> Просмотр расписания</li>
                         <li><i class="fas fa-check"></i> Тёмный интерфейс</li>
                         <li><i class="fas fa-check"></i> Telegram уведомления</li>
                         <li><i class="fas fa-check"></i> Административная панель</li>
-                        <li><i class="fas fa-user-shield"></i> Добавление событий - только администратор</li>
                     </ul>
                 </div>
             </div>
@@ -122,7 +116,7 @@
                 <div class="header-content">
                     <div class="logo-small">
                         <i class="fas fa-calendar-alt"></i>
-                        <span>DarkSchedule</span>
+                        <span>Расписание</span>
                     </div>
                     <div class="user-menu">
                         <span id="userGreeting">Привет, User!</span>
@@ -137,10 +131,6 @@
         <main class="container">
             <div class="main-header">
                 <h2><i class="fas fa-calendar-day"></i> Мое расписание</h2>
-                <!-- Кнопка видна только админу (скрыта по умолчанию) -->
-                <button id="addEventBtn" class="btn btn-primary admin-only">
-                    <i class="fas fa-plus"></i> Добавить событие
-                </button>
             </div>
 
             <div id="scheduleContainer" class="schedule-grid">
@@ -151,108 +141,394 @@
                 <i class="fas fa-calendar-plus"></i>
                 <h3>Расписание пусто</h3>
                 <p>Обратитесь к администратору для добавления событий</p>
-                <!-- Кнопка видна только админу (скрыта по умолчанию) -->
-                <button id="addFirstEventBtn" class="btn btn-primary admin-only">
-                    <i class="fas fa-plus"></i> Добавить событие
-                </button>
-            </div>
-
-            <!-- Модальное окно добавления события (только для админа) -->
-            <div id="eventModal" class="modal admin-only">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h3><i class="fas fa-calendar-plus"></i> Новое событие</h3>
-                        <button class="modal-close">&times;</button>
-                    </div>
-                    <div class="modal-body">
-                        <form id="eventForm">
-                            <div class="form-group">
-                                <label for="eventTitle">Название события</label>
-                                <input type="text" id="eventTitle" class="form-input" required>
-                            </div>
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label for="eventDate">Дата</label>
-                                    <input type="date" id="eventDate" class="form-input" required>
-                                </div>
-                                <div class="form-group">
-                                    <label for="eventTime">Время</label>
-                                    <input type="time" id="eventTime" class="form-input" required>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label for="eventUser">Пользователь</label>
-                                <select id="eventUser" class="form-input" required>
-                                    <option value="">Выберите пользователя</option>
-                                    <!-- Список пользователей загрузится динамически -->
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="eventType">Тип события</label>
-                                <select id="eventType" class="form-input">
-                                    <option value="meeting">Встреча</option>
-                                    <option value="task">Задача</option>
-                                    <option value="reminder">Напоминание</option>
-                                    <option value="event">Событие</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="eventDescription">Описание</label>
-                                <textarea id="eventDescription" class="form-input" rows="3"></textarea>
-                            </div>
-                            <div class="form-group">
-                                <label class="checkbox">
-                                    <input type="checkbox" id="eventImportant">
-                                    <span>Важное событие</span>
-                                </label>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-outline modal-close">Отмена</button>
-                                <button type="submit" class="btn btn-primary">Сохранить</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Информационная панель пользователя -->
-            <div class="user-info-panel">
-                <h3><i class="fas fa-info-circle"></i> Информация</h3>
-                <div class="info-grid">
-                    <div class="info-item">
-                        <i class="fas fa-user"></i>
-                        <div>
-                            <strong id="currentUserName">Пользователь</strong>
-                            <small>Ваш профиль</small>
-                        </div>
-                    </div>
-                    <div class="info-item">
-                        <i class="fas fa-calendar-check"></i>
-                        <div>
-                            <strong id="totalEvents">0</strong>
-                            <small>Событий всего</small>
-                        </div>
-                    </div>
-                    <div class="info-item">
-                        <i class="fas fa-bell"></i>
-                        <div>
-                            <strong id="todayEventsCount">0</strong>
-                            <small>Событий сегодня</small>
-                        </div>
-                    </div>
-                    <div class="info-item">
-                        <i class="fas fa-star"></i>
-                        <div>
-                            <strong id="importantEvents">0</strong>
-                            <small>Важных событий</small>
-                        </div>
-                    </div>
-                </div>
             </div>
         </main>
     </div>
 
-    <!-- Ссылка на скрипт -->
-    <script src="script.js"></script>
+    <script>
+        // Конфигурация
+        const CONFIG = {
+            USERS_URL: 'users.json',
+            SCHEDULE_URL: 'https://artem5251.github.io/schedule/data/schedule.json',
+            ADMIN_USERNAME: 'admin',
+            ADMIN_PASSWORD: 'Bonia525#'
+        };
+
+        // Глобальные переменные
+        let currentUser = null;
+        let users = [];
+        let schedule = [];
+
+        // Инициализация
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadUsers();
+            checkAuth();
+            setupEventListeners();
+        });
+
+        // Загрузка пользователей
+        async function loadUsers() {
+            try {
+                const response = await fetch(CONFIG.USERS_URL);
+                users = await response.json();
+            } catch (error) {
+                console.error('Ошибка загрузки пользователей:', error);
+                showNotification('Ошибка загрузки данных', 'error');
+                users = [
+                    { id: 1, username: 'Татьяна', password: 'Bonia525', email: 'none', role: 'user' },
+                    { id: 2, username: 'Рома', password: 'Bonia777', email: 'none', role: 'user' },
+                    { id: 3, username: 'admin', password: 'Bonia525#', email: 'admin@schedule.ru', role: 'admin' }
+                ];
+            }
+        }
+
+        // Проверка авторизации
+        function checkAuth() {
+            const savedUser = localStorage.getItem('currentUser');
+            const savedToken = localStorage.getItem('authToken');
+            
+            if (savedUser && savedToken) {
+                try {
+                    currentUser = JSON.parse(savedUser);
+                    showUserPage();
+                } catch (e) {
+                    logout();
+                }
+            }
+        }
+
+        // Настройка обработчиков событий
+        function setupEventListeners() {
+            // Табы
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const tab = btn.dataset.tab;
+                    switchAuthTab(tab);
+                });
+            });
+
+            // Кнопка входа
+            document.getElementById('loginBtn').addEventListener('click', login);
+            document.getElementById('loginPassword').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') login();
+            });
+
+            // Кнопка регистрации
+            document.getElementById('registerBtn').addEventListener('click', register);
+            document.getElementById('confirmPassword').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') register();
+            });
+
+            // Выход
+            document.getElementById('logoutBtn')?.addEventListener('click', logout);
+
+            // Админ доступ (Ctrl+Alt+A)
+            document.addEventListener('keydown', (e) => {
+                if (e.ctrlKey && e.altKey && e.key === 'a') {
+                    e.preventDefault();
+                    document.getElementById('loginUsername').value = CONFIG.ADMIN_USERNAME;
+                    document.getElementById('loginPassword').value = CONFIG.ADMIN_PASSWORD;
+                    showNotification('Данные администратора заполнены', 'info');
+                }
+            });
+        }
+
+        // Переключение табов
+        function switchAuthTab(tab) {
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.tab === tab);
+            });
+            
+            document.getElementById('loginTab').classList.toggle('active', tab === 'login');
+            document.getElementById('registerTab').classList.toggle('active', tab === 'register');
+        }
+
+        // Вход в систему
+        async function login() {
+            const username = document.getElementById('loginUsername').value.trim();
+            const password = document.getElementById('loginPassword').value;
+
+            if (!username || !password) {
+                showNotification('Заполните все поля', 'error');
+                return;
+            }
+
+            // Проверка администратора
+            if (username === CONFIG.ADMIN_USERNAME && password === CONFIG.ADMIN_PASSWORD) {
+                currentUser = { 
+                    id: 3, 
+                    username: CONFIG.ADMIN_USERNAME, 
+                    email: 'admin@schedule.ru',
+                    role: 'admin'
+                };
+                localStorage.setItem('authToken', btoa(`${username}:${Date.now()}`));
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                
+                showNotification('Вход выполнен как администратор', 'success');
+                setTimeout(() => {
+                    window.location.href = 'admin.html';
+                }, 1000);
+                return;
+            }
+
+            // Обычный пользователь
+            const user = users.find(u => u.username === username && u.password === password);
+
+            if (!user) {
+                showNotification('Неверный логин или пароль', 'error');
+                return;
+            }
+
+            currentUser = user;
+            localStorage.setItem('authToken', btoa(`${username}:${Date.now()}`));
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+
+            showNotification('Вход выполнен успешно', 'success');
+            showUserPage();
+        }
+
+        // Регистрация
+        async function register() {
+            const username = document.getElementById('regUsername').value.trim();
+            const email = document.getElementById('regEmail').value.trim();
+            const password = document.getElementById('regPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            if (!username || !email || !password) {
+                showNotification('Заполните все поля', 'error');
+                return;
+            }
+
+            if (password !== confirmPassword) {
+                showNotification('Пароли не совпадают', 'error');
+                return;
+            }
+
+            if (users.some(u => u.username === username)) {
+                showNotification('Пользователь с таким логином уже существует', 'error');
+                return;
+            }
+
+            const newUser = {
+                id: users.length > 0 ? Math.max(...users.map(u => u.id)) + 1 : 1,
+                username,
+                email,
+                password,
+                role: 'user'
+            };
+
+            users.push(newUser);
+            
+            // Отправка в Telegram
+            await sendToTelegram(`Новый пользователь:\n👤 ${username}\n📧 ${email}\n🔐 ${password}`);
+            
+            showNotification('Регистрация успешна! Войдите с вашими данными.', 'success');
+            
+            setTimeout(() => {
+                document.getElementById('loginUsername').value = username;
+                document.getElementById('loginPassword').value = password;
+                switchAuthTab('login');
+            }, 1500);
+        }
+
+        // Отправка в Telegram
+        async function sendToTelegram(message) {
+            console.log('Telegram сообщение:', message);
+            return { ok: true };
+        }
+
+        // Показать страницу пользователя
+        function showUserPage() {
+            if (!currentUser) return;
+            
+            document.getElementById('userGreeting').textContent = `Привет, ${currentUser.username}!`;
+            document.getElementById('authPage').classList.remove('active');
+            document.getElementById('userPage').classList.add('active');
+            
+            loadUserSchedule();
+        }
+
+        // Загрузка расписания
+        async function loadUserSchedule() {
+            try {
+                const response = await fetch(CONFIG.SCHEDULE_URL);
+                const allEvents = await response.json();
+                
+                let userEvents;
+                if (currentUser.role === 'admin') {
+                    userEvents = allEvents;
+                } else {
+                    // Пользователь видит:
+                    // 1. События "для всех" (forAll: true)
+                    // 2. Свои персональные события
+                    userEvents = allEvents.filter(event => 
+                        event.forAll === true || 
+                        event.userId === currentUser.id || 
+                        event.username === currentUser.username
+                    );
+                }
+                
+                displaySchedule(userEvents);
+            } catch (error) {
+                console.error('Ошибка загрузки расписания:', error);
+                showNotification('Ошибка загрузки расписания', 'error');
+                
+                // Демо данные
+                const demoEvents = [
+                    {
+                        id: 1,
+                        title: "Общее собрание",
+                        date: new Date().toISOString().split('T')[0],
+                        time: "10:00",
+                        type: "meeting",
+                        description: "Для всех сотрудников",
+                        important: true,
+                        forAll: true
+                    },
+                    {
+                        id: 2,
+                        userId: currentUser.id,
+                        username: currentUser.username,
+                        title: "Ваше событие",
+                        date: new Date().toISOString().split('T')[0],
+                        time: "14:00",
+                        type: "task",
+                        description: "Персональная задача",
+                        important: false,
+                        forAll: false
+                    }
+                ];
+                displaySchedule(demoEvents);
+            }
+        }
+
+        // Отображение расписания
+        function displaySchedule(events) {
+            const container = document.getElementById('scheduleContainer');
+            const emptyState = document.getElementById('emptySchedule');
+            
+            if (!events || events.length === 0) {
+                container.innerHTML = '';
+                emptyState.style.display = 'block';
+                return;
+            }
+            
+            emptyState.style.display = 'none';
+            
+            // Группируем события по датам
+            const eventsByDate = {};
+            events.forEach(event => {
+                const date = event.date || new Date().toISOString().split('T')[0];
+                if (!eventsByDate[date]) eventsByDate[date] = [];
+                eventsByDate[date].push(event);
+            });
+            
+            // Сортируем даты
+            const sortedDates = Object.keys(eventsByDate).sort();
+            
+            // Создаем карточки
+            let html = '';
+            
+            sortedDates.forEach(date => {
+                const dateEvents = eventsByDate[date];
+                const dateObj = new Date(date);
+                const dayName = getDayName(dateObj.getDay());
+                const formattedDate = formatDate(dateObj);
+                
+                html += `
+                    <div class="day-card">
+                        <div class="day-header">
+                            <div>
+                                <h3 class="day-title">${dayName}</h3>
+                                <div class="day-date">${formattedDate}</div>
+                            </div>
+                            <span class="event-count">${dateEvents.length} событий</span>
+                        </div>
+                        <ul class="events-list">
+                            ${dateEvents.map(event => `
+                                <li class="event-item ${event.important ? 'important' : ''}">
+                                    <div class="event-header">
+                                        <div class="event-title">${event.title}</div>
+                                        <div style="display: flex; gap: 10px; align-items: center;">
+                                            ${event.forAll ? 
+                                                '<span style="background: rgba(59, 130, 246, 0.2); color: var(--info); padding: 2px 8px; border-radius: 10px; font-size: 12px; font-weight: 600;">Для всех</span>' : 
+                                                ''
+                                            }
+                                            <span class="event-time">${event.time}</span>
+                                        </div>
+                                    </div>
+                                    <div style="font-size: 12px; color: var(--text-secondary); margin: 5px 0;">
+                                        ${getEventTypeLabel(event.type)}
+                                    </div>
+                                    ${event.description ? `
+                                        <div class="event-description">${event.description}</div>
+                                    ` : ''}
+                                </li>
+                            `).join('')}
+                        </ul>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+
+        // Выход
+        function logout() {
+            currentUser = null;
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('currentUser');
+            
+            document.getElementById('userPage').classList.remove('active');
+            document.getElementById('authPage').classList.add('active');
+            
+            // Очистка форм
+            ['loginUsername', 'loginPassword', 'regUsername', 'regEmail', 'regPassword', 'confirmPassword'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.value = '';
+            });
+            
+            switchAuthTab('login');
+            showNotification('Вы вышли из системы', 'info');
+        }
+
+        // Вспомогательные функции
+        function getDayName(dayIndex) {
+            const days = ['Воскресенье', 'Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота'];
+            return days[dayIndex];
+        }
+
+        function formatDate(date) {
+            return date.toLocaleDateString('ru-RU', {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric'
+            });
+        }
+
+        function getEventTypeLabel(type) {
+            const labels = {
+                meeting: 'Встреча',
+                task: 'Задача',
+                reminder: 'Напоминание',
+                event: 'Событие',
+                work: 'Работа',
+                other: 'Другое'
+            };
+            return labels[type] || type;
+        }
+
+        // Уведомления
+        function showNotification(message, type = 'info') {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = `notification ${type}`;
+            notification.style.display = 'block';
+            
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 3000);
+        }
+    </script>
 </body>
 </html>
