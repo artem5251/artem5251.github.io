@@ -8,13 +8,76 @@
     <link rel="stylesheet" href="style.css">
     <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>👑</text></svg>">
     <style>
-        .admin-container {
-            padding: 40px 20px;
-            max-width: 1200px;
-            margin: 0 auto;
-            min-height: 100vh;
+        :root {
+            --bg-dark: #0a0a0a;
+            --bg-card: #121212;
+            --bg-card-light: #1a1a1a;
+            --primary: #7c3aed;
+            --primary-hover: #6d28d9;
+            --text: #f8fafc;
+            --text-secondary: #94a3b8;
+            --danger: #ef4444;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+            --border: #2d3748;
         }
 
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text);
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Уведомления */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 10px;
+            background: var(--primary);
+            color: white;
+            z-index: 10000;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            display: none;
+            animation: slideIn 0.3s ease;
+            max-width: 400px;
+        }
+
+        .notification.success {
+            background: var(--success);
+        }
+
+        .notification.error {
+            background: var(--danger);
+        }
+
+        .notification.warning {
+            background: var(--warning);
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* Шапка админа */
         .admin-header {
             display: flex;
             justify-content: space-between;
@@ -24,6 +87,65 @@
             border-bottom: 2px solid var(--border);
         }
 
+        .admin-header h1 {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 32px;
+            color: var(--primary);
+        }
+
+        /* Кнопки */
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), #8b5cf6);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(124, 58, 237, 0.3);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--border);
+            color: var(--text);
+        }
+
+        .btn-outline:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        /* Статистика */
         .admin-stats {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -57,6 +179,7 @@
             font-size: 14px;
         }
 
+        /* Таблица пользователей */
         .users-table {
             background: var(--bg-card);
             border-radius: 15px;
@@ -67,7 +190,7 @@
 
         .table-header {
             display: grid;
-            grid-template-columns: 50px 2fr 1fr 200px;
+            grid-template-columns: 50px 1fr 1fr 150px;
             padding: 20px;
             background: var(--bg-card-light);
             border-bottom: 1px solid var(--border);
@@ -77,7 +200,7 @@
 
         .table-row {
             display: grid;
-            grid-template-columns: 50px 2fr 1fr 200px;
+            grid-template-columns: 50px 1fr 1fr 150px;
             padding: 20px;
             border-bottom: 1px solid var(--border);
             align-items: center;
@@ -89,6 +212,133 @@
 
         .table-row:hover {
             background: var(--bg-card-light);
+        }
+
+        /* Панель событий */
+        .events-panel {
+            background: var(--bg-card);
+            border-radius: 15px;
+            padding: 25px;
+            border: 1px solid var(--border);
+            margin-bottom: 40px;
+        }
+
+        .events-panel h2 {
+            color: var(--primary);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Форма добавления события */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 16px;
+            background: var(--bg-card-light);
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            color: var(--text);
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.2);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        /* Список событий */
+        .events-list {
+            list-style: none;
+            margin-top: 20px;
+        }
+
+        .event-item {
+            background: var(--bg-card-light);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-left: 4px solid var(--primary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .event-item.important {
+            border-left-color: var(--danger);
+        }
+
+        .event-info {
+            flex: 1;
+        }
+
+        .event-title {
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 5px;
+        }
+
+        .event-meta {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .event-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-icon {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 6px;
+            transition: all 0.3s;
+        }
+
+        .btn-icon:hover {
+            background: var(--bg-card);
+            color: var(--text);
+        }
+
+        .btn-icon.edit:hover {
+            color: var(--warning);
+        }
+
+        .btn-icon.delete:hover {
+            color: var(--danger);
+        }
+
+        /* Навигация */
+        .nav-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
         }
 
         .back-link {
@@ -110,45 +360,39 @@
             box-shadow: 0 5px 15px rgba(124, 58, 237, 0.3);
         }
 
-        .nav-buttons {
-            display: flex;
-            gap: 15px;
-            margin-top: 30px;
+        /* Пустое состояние */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-secondary);
         }
 
-        .admin-actions {
-            margin: 30px 0;
-            padding: 20px;
-            background: var(--bg-card);
-            border-radius: 15px;
-            border: 1px solid var(--border);
-        }
-
-        .admin-actions h3 {
+        .empty-state i {
+            font-size: 48px;
             margin-bottom: 15px;
-            color: var(--primary);
-        }
-
-        .action-buttons {
-            display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
+            opacity: 0.5;
         }
 
         @media (max-width: 768px) {
             .table-header,
             .table-row {
-                grid-template-columns: 30px 1fr 1fr 150px;
+                grid-template-columns: 30px 1fr 1fr 100px;
                 padding: 15px 10px;
                 font-size: 14px;
             }
             
-            .action-buttons {
-                flex-direction: column;
+            .form-row {
+                grid-template-columns: 1fr;
             }
             
-            .btn {
-                width: 100%;
+            .admin-header {
+                flex-direction: column;
+                gap: 20px;
+                text-align: center;
+            }
+            
+            .nav-buttons {
+                flex-direction: column;
             }
         }
     </style>
@@ -156,20 +400,22 @@
 <body>
     <div id="notification" class="notification"></div>
     
-    <div class="admin-container">
+    <div class="container">
+        <!-- Шапка -->
         <div class="admin-header">
             <div>
                 <h1><i class="fas fa-user-shield"></i> Панель администратора</h1>
                 <p style="color: var(--text-secondary); margin-top: 5px;">Управление пользователями и расписанием</p>
             </div>
             <div style="display: flex; gap: 15px; align-items: center;">
-                <span id="adminName">Администратор</span>
-                <button id="logoutAdminBtn" class="btn btn-outline">
+                <span id="adminName" style="color: var(--text-secondary);">Администратор</span>
+                <button id="logoutBtn" class="btn btn-outline">
                     <i class="fas fa-sign-out-alt"></i> Выйти
                 </button>
             </div>
         </div>
 
+        <!-- Статистика -->
         <div class="admin-stats">
             <div class="stat-card">
                 <i class="fas fa-users" style="font-size: 24px; color: var(--primary);"></i>
@@ -187,207 +433,496 @@
                 <div class="stat-label">Событий сегодня</div>
             </div>
             <div class="stat-card">
-                <i class="fas fa-user-clock" style="font-size: 24px; color: var(--info);"></i>
-                <div class="stat-value" id="activeUsers">0</div>
-                <div class="stat-label">Активных сегодня</div>
+                <i class="fas fa-database" style="font-size: 24px; color: var(--info);"></i>
+                <div class="stat-value" id="localEvents">0</div>
+                <div class="stat-label">В localStorage</div>
             </div>
         </div>
 
-        <div class="admin-actions">
-            <h3><i class="fas fa-tools"></i> Быстрые действия</h3>
-            <div class="action-buttons">
-                <button class="btn btn-primary" onclick="viewAllEvents()">
-                    <i class="fas fa-calendar-alt"></i> Все события
+        <!-- Управление событиями -->
+        <div class="events-panel">
+            <h2><i class="fas fa-plus-circle"></i> Добавить новое событие</h2>
+            
+            <form id="addEventForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="eventTitle">Название события</label>
+                        <input type="text" id="eventTitle" placeholder="Введите название" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="eventUser">Для пользователя</label>
+                        <select id="eventUser" required>
+                            <option value="">Выберите пользователя</option>
+                            <!-- Пользователи загрузятся динамически -->
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="eventDate">Дата</label>
+                        <input type="date" id="eventDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="eventTime">Время</label>
+                        <input type="time" id="eventTime" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="eventType">Тип события</label>
+                    <select id="eventType">
+                        <option value="meeting">Встреча</option>
+                        <option value="task">Задача</option>
+                        <option value="reminder">Напоминание</option>
+                        <option value="event">Событие</option>
+                        <option value="other">Другое</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="eventDescription">Описание</label>
+                    <textarea id="eventDescription" rows="3" placeholder="Описание события"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                        <input type="checkbox" id="eventImportant" style="width: 18px; height: 18px;">
+                        <span>Важное событие</span>
+                    </label>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Добавить событие
                 </button>
-                <button class="btn btn-outline" onclick="exportData()">
-                    <i class="fas fa-download"></i> Экспорт данных
-                </button>
-                <button class="btn btn-outline" onclick="clearOldEvents()">
-                    <i class="fas fa-trash-alt"></i> Очистить старые
-                </button>
-                <button class="btn btn-outline" onclick="showSystemInfo()">
-                    <i class="fas fa-info-circle"></i> Информация
-                </button>
-            </div>
+            </form>
         </div>
 
-        <h2 style="margin-bottom: 20px;"><i class="fas fa-list"></i> Список пользователей (только просмотр)</h2>
+        <!-- Список пользователей -->
+        <h2 style="margin-bottom: 20px; color: var(--primary);">
+            <i class="fas fa-users"></i> Список пользователей
+        </h2>
         
         <div class="users-table">
             <div class="table-header">
                 <div>ID</div>
                 <div>Логин</div>
+                <div>Email</div>
                 <div>Роль</div>
-                <div>Дата регистрации</div>
             </div>
             <div id="usersList">
-                <!-- Пользователи будут загружены здесь -->
+                <!-- Пользователи загрузятся здесь -->
+                <div class="empty-state" id="usersEmpty" style="display: none; grid-column: 1/-1;">
+                    <i class="fas fa-users-slash"></i>
+                    <p>Пользователи не найдены</p>
+                </div>
             </div>
         </div>
 
+        <!-- Список событий -->
+        <h2 style="margin-bottom: 20px; margin-top: 40px; color: var(--primary);">
+            <i class="fas fa-calendar-alt"></i> Все события
+        </h2>
+        
+        <div id="eventsList" class="events-list">
+            <!-- События загрузятся здесь -->
+            <div class="empty-state" id="eventsEmpty" style="display: none;">
+                <i class="fas fa-calendar-times"></i>
+                <p>События не найдены</p>
+                <p class="text-secondary" style="font-size: 14px; margin-top: 10px;">
+                    Добавьте первое событие используя форму выше
+                </p>
+            </div>
+        </div>
+
+        <!-- Навигация -->
         <div class="nav-buttons">
             <a href="index.html" class="back-link">
                 <i class="fas fa-arrow-left"></i> Вернуться на главную
             </a>
-            <button class="btn btn-outline" onclick="refreshData()">
+            <button id="refreshBtn" class="btn btn-outline">
                 <i class="fas fa-sync-alt"></i> Обновить данные
+            </button>
+            <button id="clearEventsBtn" class="btn btn-danger">
+                <i class="fas fa-trash-alt"></i> Очистить все события
             </button>
         </div>
     </div>
 
     <script>
-        // Проверка авторизации админа
-        function checkAdminAuth() {
+        // Конфигурация
+        const CONFIG = {
+            USERS_URL: 'users.json',
+            SCHEDULE_URL: 'data/schedule.json',
+            ADMIN_USERNAME: 'admin'
+        };
+
+        // Глобальные переменные
+        let users = [];
+        let events = [];
+
+        // Проверка авторизации
+        function checkAuth() {
             const savedUser = localStorage.getItem('currentUser');
             if (!savedUser) {
                 window.location.href = 'index.html';
-                return null;
+                return false;
             }
 
             try {
                 const user = JSON.parse(savedUser);
-                if (user.username !== 'admin' && user.username !== 'Admin') {
+                if (user.username !== CONFIG.ADMIN_USERNAME) {
                     window.location.href = 'index.html';
-                    return null;
+                    return false;
                 }
-                return user;
+                
+                // Обновляем имя админа
+                document.getElementById('adminName').textContent = user.username;
+                return true;
             } catch (e) {
                 window.location.href = 'index.html';
-                return null;
+                return false;
             }
         }
 
         // Загрузка данных
-        async function loadAdminData() {
-            const adminUser = checkAdminAuth();
-            if (!adminUser) return;
-            
-            document.getElementById('adminName').textContent = adminUser.username;
-
+        async function loadData() {
             try {
                 // Загрузка пользователей
-                const usersResponse = await fetch('users.json');
-                const users = await usersResponse.json();
+                const usersResponse = await fetch(CONFIG.USERS_URL);
+                users = await usersResponse.json();
                 
-                // Загрузка расписания
-                const scheduleResponse = await fetch('data/schedule.json');
-                const schedule = await scheduleResponse.json();
+                // Загрузка событий из JSON
+                let jsonEvents = [];
+                try {
+                    const scheduleResponse = await fetch(CONFIG.SCHEDULE_URL);
+                    jsonEvents = await scheduleResponse.json();
+                } catch (e) {
+                    console.log('JSON schedule not found, using empty array');
+                }
                 
-                // Загрузка временных пользователей из localStorage
-                const tempUsers = JSON.parse(localStorage.getItem('tempUsers') || '[]');
-                const allUsers = [...users, ...tempUsers];
+                // Загрузка событий из localStorage
+                const localEvents = JSON.parse(localStorage.getItem('adminEvents') || '[]');
                 
-                // Обновление статистики
-                document.getElementById('usersCount').textContent = allUsers.length;
-                document.getElementById('eventsCount').textContent = schedule.length;
+                // Объединяем события (localStorage имеет приоритет)
+                events = [...localEvents, ...jsonEvents.filter(e => 
+                    !localEvents.some(le => le.id === e.id)
+                )];
                 
-                const today = new Date().toISOString().split('T')[0];
-                const todayEvents = schedule.filter(event => event.date === today).length;
-                document.getElementById('todayEvents').textContent = todayEvents;
+                // Обновляем статистику
+                updateStats();
                 
-                // Активные пользователи (за последние 7 дней)
-                const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-                const activeUsers = allUsers.filter(user => 
-                    user.lastLogin && user.lastLogin >= weekAgo
-                ).length;
-                document.getElementById('activeUsers').textContent = activeUsers;
+                // Отображаем пользователей
+                displayUsers();
                 
-                // Отображение пользователей
-                displayUsers(allUsers);
+                // Заполняем выпадающий список пользователей
+                populateUserSelect();
+                
+                // Отображаем события
+                displayEvents();
+                
+                showNotification('Данные загружены', 'success');
             } catch (error) {
-                console.error('Ошибка загрузки данных:', error);
+                console.error('Ошибка загрузки:', error);
                 showNotification('Ошибка загрузки данных', 'error');
                 
-                // Демо данные
-                const demoUsers = [
-                    { id: 1, username: 'user1', email: 'user1@example.com', createdAt: '2024-01-01', role: 'user' },
-                    { id: 2, username: 'user2', email: 'user2@example.com', createdAt: '2024-01-02', role: 'user' },
-                    { id: 3, username: 'admin', email: 'admin@example.com', createdAt: '2024-01-01', role: 'admin' }
-                ];
-                document.getElementById('usersCount').textContent = '3';
-                document.getElementById('eventsCount').textContent = '3';
-                document.getElementById('todayEvents').textContent = '1';
-                document.getElementById('activeUsers').textContent = '2';
-                
-                displayUsers(demoUsers);
+                // Демо данные при ошибке
+                loadDemoData();
             }
         }
 
-        // Отображение пользователей
-        function displayUsers(users) {
-            const container = document.getElementById('usersList');
-            if (!container) return;
+        // Демо данные
+        function loadDemoData() {
+            users = [
+                { id: 1, username: 'user1', email: 'user1@example.com', role: 'user' },
+                { id: 2, username: 'user2', email: 'user2@example.com', role: 'user' },
+                { id: 3, username: 'admin', email: 'admin@example.com', role: 'admin' }
+            ];
             
+            const today = new Date().toISOString().split('T')[0];
+            events = [
+                {
+                    id: 1,
+                    userId: 1,
+                    username: 'user1',
+                    title: 'Демо совещание',
+                    date: today,
+                    time: '10:00',
+                    type: 'meeting',
+                    description: 'Пример события',
+                    important: true
+                }
+            ];
+            
+            updateStats();
+            displayUsers();
+            populateUserSelect();
+            displayEvents();
+        }
+
+        // Обновление статистики
+        function updateStats() {
+            const today = new Date().toISOString().split('T')[0];
+            const todayEvents = events.filter(e => e.date === today).length;
+            const localEvents = JSON.parse(localStorage.getItem('adminEvents') || '[]').length;
+            
+            document.getElementById('usersCount').textContent = users.length;
+            document.getElementById('eventsCount').textContent = events.length;
+            document.getElementById('todayEvents').textContent = todayEvents;
+            document.getElementById('localEvents').textContent = localEvents;
+        }
+
+        // Отображение пользователей
+        function displayUsers() {
+            const container = document.getElementById('usersList');
+            const emptyState = document.getElementById('usersEmpty');
+            
+            if (!users || users.length === 0) {
+                emptyState.style.display = 'block';
+                return;
+            }
+            
+            emptyState.style.display = 'none';
             container.innerHTML = '';
             
             users.forEach(user => {
                 const row = document.createElement('div');
                 row.className = 'table-row';
+                
+                const roleColor = user.role === 'admin' ? 'var(--primary)' : 'var(--text-secondary)';
+                const roleText = user.role === 'admin' ? '👑 Админ' : '👤 Пользователь';
+                
                 row.innerHTML = `
                     <div>${user.id || '—'}</div>
                     <div>
                         <strong>${user.username}</strong>
                         ${user.email ? `<div style="font-size: 12px; color: var(--text-secondary);">${user.email}</div>` : ''}
                     </div>
-                    <div>
-                        <span style="color: ${user.role === 'admin' ? 'var(--primary)' : 'var(--text-secondary)'};">
-                            ${user.role === 'admin' ? '👑 Администратор' : '👤 Пользователь'}
-                        </span>
-                    </div>
-                    <div>${formatDate(new Date(user.createdAt || Date.now()))}</div>
+                    <div>${user.email || '—'}</div>
+                    <div style="color: ${roleColor};">${roleText}</div>
                 `;
+                
                 container.appendChild(row);
             });
         }
 
-        // Действия администратора
-        function viewAllEvents() {
-            alert('Просмотр всех событий\nВ реальном проекте здесь будет список всех событий с фильтрацией.');
+        // Заполнение выпадающего списка пользователей
+        function populateUserSelect() {
+            const select = document.getElementById('eventUser');
+            select.innerHTML = '<option value="">Выберите пользователя</option>';
+            
+            users.forEach(user => {
+                if (user.role !== 'admin') { // Не показываем админа
+                    const option = document.createElement('option');
+                    option.value = user.id;
+                    option.textContent = `${user.username} (${user.email || 'нет email'})`;
+                    select.appendChild(option);
+                }
+            });
         }
 
-        function exportData() {
-            alert('Экспорт данных\nВ реальном проекте здесь будет скачивание данных в формате JSON или CSV.');
-        }
-
-        function clearOldEvents() {
-            if (confirm('Очистить события старше 30 дней?\n(В демо-режиме это только имитация)')) {
-                showNotification('Старые события очищены (демо)', 'success');
+        // Отображение событий
+        function displayEvents() {
+            const container = document.getElementById('eventsList');
+            const emptyState = document.getElementById('eventsEmpty');
+            
+            if (!events || events.length === 0) {
+                emptyState.style.display = 'block';
+                return;
             }
+            
+            emptyState.style.display = 'none';
+            container.innerHTML = '';
+            
+            // Сортируем события по дате
+            const sortedEvents = [...events].sort((a, b) => {
+                const dateA = new Date(a.date + 'T' + a.time);
+                const dateB = new Date(b.date + 'T' + b.time);
+                return dateA - dateB;
+            });
+            
+            sortedEvents.forEach(event => {
+                const eventElement = document.createElement('div');
+                eventElement.className = `event-item ${event.important ? 'important' : ''}`;
+                
+                const user = users.find(u => u.id == event.userId) || { username: 'Неизвестно' };
+                const typeLabels = {
+                    meeting: 'Встреча',
+                    task: 'Задача',
+                    reminder: 'Напоминание',
+                    event: 'Событие',
+                    other: 'Другое'
+                };
+                
+                eventElement.innerHTML = `
+                    <div class="event-info">
+                        <div class="event-title">${event.title}</div>
+                        <div class="event-meta">
+                            <span>👤 ${user.username}</span> • 
+                            <span>📅 ${formatDate(event.date)}</span> • 
+                            <span>⏰ ${event.time}</span> • 
+                            <span>${typeLabels[event.type] || event.type}</span>
+                            ${event.important ? ' • <span style="color: var(--danger);">⭐ Важное</span>' : ''}
+                        </div>
+                        ${event.description ? `<div style="margin-top: 8px; font-size: 14px; color: var(--text-secondary);">${event.description}</div>` : ''}
+                    </div>
+                    <div class="event-actions">
+                        <button class="btn-icon edit" onclick="editEvent(${event.id})" title="Редактировать">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn-icon delete" onclick="deleteEvent(${event.id})" title="Удалить">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+                
+                container.appendChild(eventElement);
+            });
         }
 
-        function showSystemInfo() {
-            const info = `
-                Системная информация:
-                • Версия: 1.0.0
-                • Пользователей: ${document.getElementById('usersCount').textContent}
-                • Событий: ${document.getElementById('eventsCount').textContent}
-                • Дата: ${new Date().toLocaleDateString('ru-RU')}
-                • Браузер: ${navigator.userAgent.split(') ')[0].split('(')[1]}
-            `;
-            alert(info);
+        // Добавление события
+        document.getElementById('addEventForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const title = document.getElementById('eventTitle').value.trim();
+            const userId = document.getElementById('eventUser').value;
+            const date = document.getElementById('eventDate').value;
+            const time = document.getElementById('eventTime').value;
+            const type = document.getElementById('eventType').value;
+            const description = document.getElementById('eventDescription').value.trim();
+            const important = document.getElementById('eventImportant').checked;
+            
+            if (!title) {
+                showNotification('Введите название события', 'error');
+                return;
+            }
+            
+            if (!userId) {
+                showNotification('Выберите пользователя', 'error');
+                return;
+            }
+            
+            if (!date) {
+                showNotification('Выберите дату', 'error');
+                return;
+            }
+            
+            if (!time) {
+                showNotification('Выберите время', 'error');
+                return;
+            }
+            
+            const user = users.find(u => u.id == userId);
+            if (!user) {
+                showNotification('Пользователь не найден', 'error');
+                return;
+            }
+            
+            // Создаем новое событие
+            const newEvent = {
+                id: Date.now(), // Уникальный ID
+                userId: parseInt(userId),
+                username: user.username,
+                title: title,
+                date: date,
+                time: time,
+                type: type,
+                description: description,
+                important: important,
+                createdBy: 'admin',
+                createdAt: new Date().toISOString()
+            };
+            
+            // Добавляем событие
+            events.push(newEvent);
+            
+            // Сохраняем в localStorage
+            saveEventsToLocalStorage();
+            
+            // Обновляем отображение
+            updateStats();
+            displayEvents();
+            
+            // Очищаем форму
+            document.getElementById('addEventForm').reset();
+            document.getElementById('eventDate').value = new Date().toISOString().split('T')[0];
+            
+            showNotification(`Событие "${title}" добавлено для ${user.username}`, 'success');
+        });
+
+        // Редактирование события
+        function editEvent(eventId) {
+            const event = events.find(e => e.id == eventId);
+            if (!event) {
+                showNotification('Событие не найдено', 'error');
+                return;
+            }
+            
+            const newTitle = prompt('Новое название события:', event.title);
+            if (newTitle === null) return;
+            
+            const newDescription = prompt('Новое описание:', event.description || '');
+            
+            event.title = newTitle.trim();
+            event.description = newDescription ? newDescription.trim() : '';
+            
+            saveEventsToLocalStorage();
+            displayEvents();
+            showNotification('Событие обновлено', 'success');
         }
 
-        function refreshData() {
-            loadAdminData();
-            showNotification('Данные обновлены', 'success');
+        // Удаление события
+        function deleteEvent(eventId) {
+            if (!confirm('Удалить это событие?')) return;
+            
+            events = events.filter(e => e.id != eventId);
+            saveEventsToLocalStorage();
+            
+            updateStats();
+            displayEvents();
+            showNotification('Событие удалено', 'success');
         }
+
+        // Сохранение событий в localStorage
+        function saveEventsToLocalStorage() {
+            localStorage.setItem('adminEvents', JSON.stringify(events));
+        }
+
+        // Очистка всех событий
+        document.getElementById('clearEventsBtn').addEventListener('click', function() {
+            if (!confirm('Очистить ВСЕ события из localStorage?\nЭто действие нельзя отменить.')) return;
+            
+            localStorage.removeItem('adminEvents');
+            events = [];
+            
+            updateStats();
+            displayEvents();
+            showNotification('Все события очищены', 'success');
+        });
+
+        // Обновление данных
+        document.getElementById('refreshBtn').addEventListener('click', function() {
+            loadData();
+        });
 
         // Выход
-        document.getElementById('logoutAdminBtn').addEventListener('click', () => {
+        document.getElementById('logoutBtn').addEventListener('click', function() {
             localStorage.removeItem('currentUser');
-            localStorage.removeItem('authToken');
             window.location.href = 'index.html';
         });
 
         // Вспомогательные функции
-        function formatDate(date) {
-            return date.toLocaleDateString('ru-RU');
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('ru-RU', {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric'
+            });
         }
 
         function showNotification(message, type = 'info') {
             const notification = document.getElementById('notification');
-            if (!notification) return;
-            
             notification.textContent = message;
             notification.className = `notification ${type}`;
             notification.style.display = 'block';
@@ -398,7 +933,17 @@
         }
 
         // Инициализация
-        document.addEventListener('DOMContentLoaded', loadAdminData);
+        document.addEventListener('DOMContentLoaded', function() {
+            if (checkAuth()) {
+                // Устанавливаем сегодняшнюю дату в форме
+                const today = new Date().toISOString().split('T')[0];
+                document.getElementById('eventDate').value = today;
+                document.getElementById('eventDate').min = today;
+                
+                // Загружаем данные
+                loadData();
+            }
+        });
     </script>
 </body>
 </html>
