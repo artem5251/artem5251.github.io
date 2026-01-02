@@ -4,23 +4,20 @@
     "username": "Татьяна",
     "password": "Bonia525",
     "email": "none",
-    "role": "user",
-    "createdAt": "2026-02-01"
+    "role": "user"
   },
   {
     "id": 2,
     "username": "Рома",
     "password": "Bonia777",
-    "email": "none", 
-    "role": "user",
-    "createdAt": "2026-02-01"
+    "email": "none",
+    "role": "user"
   },
   {
     "id": 3,
     "username": "admin",
     "password": "Bonia525#",
     "email": "admin@schedule.ru",
-    "role": "admin",
-    "createdAt": "2024-01-01"
+    "role": "admin"
   }
 ]
