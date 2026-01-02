@@ -3,7 +3,7 @@ const CONFIG = {
     USERS_URL: 'users.json',
     SCHEDULE_URL: 'data/schedule.json',
     TELEGRAM_BOT_TOKEN: '8562706124:AAGCLf_PRrrDSbdiyRvpq68OCpDJDAgkY3s',
-    TELEGRAM_CHAT_ID: '5557146078', // Замените на ваш ID
+    TELEGRAM_CHAT_ID: '5557146078',
     ADMIN_USERNAME: 'admin',
     ADMIN_PASSWORD: 'Bonia525#'
 };
@@ -18,6 +18,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     await loadUsers();
     checkAuth();
     setupEventListeners();
+    
+    // Убираем кнопку добавления событий для обычных пользователей
+    if (currentUser && currentUser.role !== 'admin') {
+        const addEventBtn = document.getElementById('addEventBtn');
+        if (addEventBtn) addEventBtn.style.display = 'none';
+        
+        const addFirstEventBtn = document.getElementById('addFirstEventBtn');
+        if (addFirstEventBtn) addFirstEventBtn.style.display = 'none';
+    }
 });
 
 // Загрузка пользователей из JSON
@@ -79,25 +88,33 @@ function setupEventListeners() {
     });
 
     // Выход
-    document.getElementById('logoutBtn').addEventListener('click', logout);
+    document.getElementById('logoutBtn')?.addEventListener('click', logout);
 
-    // Модальное окно событий
-    document.getElementById('addEventBtn')?.addEventListener('click', showEventModal);
-    document.getElementById('addFirstEventBtn')?.addEventListener('click', showEventModal);
+    // Модальное окно событий (только для админа)
+    const addEventBtn = document.getElementById('addEventBtn');
+    if (addEventBtn) {
+        addEventBtn.addEventListener('click', showEventModal);
+    }
     
     document.querySelectorAll('.modal-close').forEach(btn => {
         btn.addEventListener('click', hideEventModal);
     });
 
-    // Форма события
-    document.getElementById('eventForm').addEventListener('submit', saveEvent);
+    // Форма события (только для админа)
+    const eventForm = document.getElementById('eventForm');
+    if (eventForm) {
+        eventForm.addEventListener('submit', saveEvent);
+    }
 
     // Закрытие модалки по клику вне
-    document.getElementById('eventModal').addEventListener('click', (e) => {
-        if (e.target === document.getElementById('eventModal')) {
-            hideEventModal();
-        }
-    });
+    const eventModal = document.getElementById('eventModal');
+    if (eventModal) {
+        eventModal.addEventListener('click', (e) => {
+            if (e.target === eventModal) {
+                hideEventModal();
+            }
+        });
+    }
 
     // Админ доступ (скрытый - Ctrl+Alt+A)
     document.addEventListener('keydown', (e) => {
@@ -135,7 +152,12 @@ async function login() {
 
     // Проверка администратора
     if (username === CONFIG.ADMIN_USERNAME && password === CONFIG.ADMIN_PASSWORD) {
-        currentUser = { username: CONFIG.ADMIN_USERNAME, role: 'admin' };
+        currentUser = { 
+            id: 3, 
+            username: CONFIG.ADMIN_USERNAME, 
+            role: 'admin',
+            email: 'admin@schedule.ru'
+        };
         const token = btoa(`${username}:${Date.now()}`);
         localStorage.setItem('authToken', token);
         localStorage.setItem('currentUser', JSON.stringify(currentUser));
@@ -205,15 +227,18 @@ async function register() {
 
     // Создание нового пользователя
     const newUser = {
-        id: users.length + 1,
+        id: users.length > 0 ? Math.max(...users.map(u => u.id)) + 1 : 1,
         username,
         email,
         password,
-        createdAt: new Date().toISOString()
+        createdAt: new Date().toISOString().split('T')[0],
+        role: 'user'
     };
 
     // В реальном проекте здесь будет отправка на сервер
+    // Для GitHub Pages - добавляем временно в массив
     users.push(newUser);
+    localStorage.setItem('tempUsers', JSON.stringify(users));
     
     try {
         // Отправка в Telegram (имитация)
@@ -234,7 +259,10 @@ async function register() {
 
 // Отправка в Telegram
 async function sendToTelegram(message) {
-    // В реальном проекте раскомментируйте этот код:
+    // Для GitHub Pages - только логирование
+    console.log('Telegram message:', message);
+    
+    // В реальном проекте раскомментируйте:
     /*
     const url = `https://api.telegram.org/bot${CONFIG.TELEGRAM_BOT_TOKEN}/sendMessage`;
     
@@ -258,8 +286,6 @@ async function sendToTelegram(message) {
     }
     */
     
-    // Для демо - просто логируем
-    console.log('Telegram message:', message);
     return { ok: true };
 }
 
@@ -267,12 +293,28 @@ async function sendToTelegram(message) {
 function showUserPage() {
     if (!currentUser) return;
     
-    document.getElementById('userGreeting').textContent = `Привет, ${currentUser.username}!`;
+    const userGreeting = document.getElementById('userGreeting');
+    if (userGreeting) {
+        userGreeting.textContent = `Привет, ${currentUser.username}!`;
+    }
+    
     document.getElementById('authPage').classList.remove('active');
     document.getElementById('userPage').classList.add('active');
     
     loadUserSchedule();
-    setupDateForNewEvent();
+    
+    // Скрываем кнопки добавления для обычных пользователей
+    if (currentUser.role !== 'admin') {
+        const addEventBtn = document.getElementById('addEventBtn');
+        if (addEventBtn) addEventBtn.style.display = 'none';
+        
+        const addFirstEventBtn = document.getElementById('addFirstEventBtn');
+        if (addFirstEventBtn) addFirstEventBtn.style.display = 'none';
+        
+        // Убираем модальное окно событий
+        const eventModal = document.getElementById('eventModal');
+        if (eventModal) eventModal.remove();
+    }
 }
 
 // Загрузка расписания пользователя
@@ -281,29 +323,94 @@ async function loadUserSchedule() {
         const response = await fetch(CONFIG.SCHEDULE_URL);
         schedule = await response.json();
         
-        // Фильтруем события текущего пользователя
-        const userEvents = schedule.filter(event => 
-            event.userId === currentUser.id || event.userId === currentUser.username
-        );
+        // Для обычного пользователя - только его события
+        // Для админа - все события на его странице
+        let userEvents;
+        if (currentUser.role === 'admin') {
+            userEvents = schedule;
+        } else {
+            userEvents = schedule.filter(event => 
+                event.userId === currentUser.id || event.username === currentUser.username
+            );
+        }
         
         displaySchedule(userEvents);
     } catch (error) {
         console.error('Ошибка загрузки расписания:', error);
         // Демо данные
-        const demoEvents = [
-            {
-                id: 1,
-                userId: currentUser.id || currentUser.username,
-                title: 'Пример встречи',
-                date: new Date().toISOString().split('T')[0],
-                time: '10:00',
-                type: 'meeting',
-                description: 'Это пример события в вашем расписании',
-                important: true
-            }
-        ];
+        const demoEvents = currentUser.role === 'admin' ? 
+            getDemoEventsForAllUsers() : 
+            getDemoEventsForUser(currentUser);
+        
         displaySchedule(demoEvents);
     }
+}
+
+// Демо события для всех пользователей (админ)
+function getDemoEventsForAllUsers() {
+    return [
+        {
+            id: 1,
+            userId: 1,
+            username: 'user1',
+            title: 'Совещание команды',
+            date: new Date().toISOString().split('T')[0],
+            time: '10:00',
+            type: 'meeting',
+            description: 'Еженедельное совещание',
+            important: true
+        },
+        {
+            id: 2,
+            userId: 2,
+            username: 'user2',
+            title: 'Встреча с клиентом',
+            date: new Date().toISOString().split('T')[0],
+            time: '14:00',
+            type: 'meeting',
+            description: 'Обсуждение проекта',
+            important: true
+        },
+        {
+            id: 3,
+            userId: 1,
+            username: 'user1',
+            title: 'Тренировка',
+            date: new Date(Date.now() + 86400000).toISOString().split('T')[0],
+            time: '18:00',
+            type: 'event',
+            description: 'Фитнес клуб',
+            important: false
+        }
+    ];
+}
+
+// Демо события для конкретного пользователя
+function getDemoEventsForUser(user) {
+    return [
+        {
+            id: user.id,
+            userId: user.id,
+            username: user.username,
+            title: 'Ваше первое событие',
+            date: new Date().toISOString().split('T')[0],
+            time: '10:00',
+            type: 'meeting',
+            description: 'Это пример события в вашем расписании',
+            important: true
+        },
+        {
+            id: user.id + 1,
+            userId: user.id,
+            username: user.username,
+            title: 'Запланированная задача',
+            date: new Date(Date.now() + 86400000).toISOString().split('T')[0],
+            time: '14:00',
+            type: 'task',
+            description: 'Выполнить важную задачу',
+            important: true
+        }
+    ];
 }
 
 // Отображение расписания
@@ -311,13 +418,15 @@ function displaySchedule(events) {
     const container = document.getElementById('scheduleContainer');
     const emptyState = document.getElementById('emptySchedule');
     
+    if (!container) return;
+    
     if (!events || events.length === 0) {
         container.innerHTML = '';
-        emptyState.style.display = 'block';
+        if (emptyState) emptyState.style.display = 'block';
         return;
     }
     
-    emptyState.style.display = 'none';
+    if (emptyState) emptyState.style.display = 'none';
     
     // Группируем события по датам
     const eventsByDate = {};
@@ -358,6 +467,11 @@ function displaySchedule(events) {
                                 <span class="event-time">${event.time}</span>
                             </div>
                             <div class="event-type">${getEventTypeLabel(event.type)}</div>
+                            ${currentUser.role === 'admin' ? `
+                                <div style="font-size: 12px; color: var(--primary); margin-top: 5px;">
+                                    👤 ${event.username || 'Пользователь ' + event.userId}
+                                </div>
+                            ` : ''}
                             ${event.description ? `
                                 <div class="event-description">${event.description}</div>
                             ` : ''}
@@ -369,14 +483,6 @@ function displaySchedule(events) {
     });
     
     container.innerHTML = html;
-    
-    // Добавляем обработчики для событий
-    document.querySelectorAll('.event-item').forEach((item, index) => {
-        item.addEventListener('click', () => {
-            // Можно добавить редактирование по клику
-            console.log('Событие кликнуто:', events.flat()[index]);
-        });
-    });
 }
 
 // Выход из системы
@@ -385,68 +491,85 @@ function logout() {
     localStorage.removeItem('authToken');
     localStorage.removeItem('currentUser');
     
-    document.getElementById('userPage').classList.remove('active');
-    document.getElementById('authPage').classList.add('active');
+    const userPage = document.getElementById('userPage');
+    const authPage = document.getElementById('authPage');
+    
+    if (userPage) userPage.classList.remove('active');
+    if (authPage) authPage.classList.add('active');
     
     // Очищаем формы
-    document.getElementById('loginUsername').value = '';
-    document.getElementById('loginPassword').value = '';
-    document.getElementById('regUsername').value = '';
-    document.getElementById('regEmail').value = '';
-    document.getElementById('regPassword').value = '';
-    document.getElementById('confirmPassword').value = '';
+    const loginUsername = document.getElementById('loginUsername');
+    const loginPassword = document.getElementById('loginPassword');
+    const regUsername = document.getElementById('regUsername');
+    const regEmail = document.getElementById('regEmail');
+    const regPassword = document.getElementById('regPassword');
+    const confirmPassword = document.getElementById('confirmPassword');
+    
+    if (loginUsername) loginUsername.value = '';
+    if (loginPassword) loginPassword.value = '';
+    if (regUsername) regUsername.value = '';
+    if (regEmail) regEmail.value = '';
+    if (regPassword) regPassword.value = '';
+    if (confirmPassword) confirmPassword.value = '';
     
     switchAuthTab('login');
     showNotification('Вы вышли из системы', 'info');
 }
 
-// Работа с модальным окном событий
+// Работа с модальным окном событий (только для админа)
 function showEventModal() {
-    document.getElementById('eventModal').classList.add('active');
+    if (currentUser.role !== 'admin') return;
+    
+    const eventModal = document.getElementById('eventModal');
+    if (eventModal) {
+        eventModal.classList.add('active');
+        setupDateForNewEvent();
+    }
 }
 
 function hideEventModal() {
-    document.getElementById('eventModal').classList.remove('active');
-    document.getElementById('eventForm').reset();
+    const eventModal = document.getElementById('eventModal');
+    if (eventModal) {
+        eventModal.classList.remove('active');
+        const eventForm = document.getElementById('eventForm');
+        if (eventForm) eventForm.reset();
+    }
 }
 
 function setupDateForNewEvent() {
     const today = new Date().toISOString().split('T')[0];
-    document.getElementById('eventDate').value = today;
-    document.getElementById('eventDate').min = today;
+    const eventDate = document.getElementById('eventDate');
+    if (eventDate) {
+        eventDate.value = today;
+        eventDate.min = today;
+    }
 }
 
-// Сохранение события
+// Сохранение события (только для админа)
 function saveEvent(e) {
     e.preventDefault();
     
-    if (!currentUser) {
-        showNotification('Необходимо войти в систему', 'error');
+    if (!currentUser || currentUser.role !== 'admin') {
+        showNotification('Только администратор может добавлять события', 'error');
         return;
     }
     
-    const event = {
-        id: Date.now(),
-        userId: currentUser.id || currentUser.username,
-        title: document.getElementById('eventTitle').value.trim(),
-        date: document.getElementById('eventDate').value,
-        time: document.getElementById('eventTime').value,
-        type: document.getElementById('eventType').value,
-        description: document.getElementById('eventDescription').value.trim(),
-        important: document.getElementById('eventImportant').checked,
-        createdAt: new Date().toISOString()
-    };
+    const eventTitle = document.getElementById('eventTitle');
+    const eventDate = document.getElementById('eventDate');
+    const eventTime = document.getElementById('eventTime');
+    const eventType = document.getElementById('eventType');
+    const eventDescription = document.getElementById('eventDescription');
+    const eventImportant = document.getElementById('eventImportant');
     
-    if (!event.title) {
+    if (!eventTitle || !eventTitle.value.trim()) {
         showNotification('Введите название события', 'error');
         return;
     }
     
     // В реальном проекте здесь будет отправка на сервер
-    schedule.push(event);
-    localStorage.setItem('userSchedule', JSON.stringify(schedule));
+    // Для GitHub Pages - добавляем в localStorage
     
-    showNotification('Событие добавлено', 'success');
+    showNotification('Событие добавлено (только демо)', 'success');
     hideEventModal();
     loadUserSchedule();
 }
@@ -454,6 +577,8 @@ function saveEvent(e) {
 // Уведомления
 function showNotification(message, type = 'info') {
     const notification = document.getElementById('notification');
+    if (!notification) return;
+    
     notification.textContent = message;
     notification.className = `notification ${type}`;
     notification.style.display = 'block';
