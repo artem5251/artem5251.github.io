@@ -1,19 +1,19 @@
 [
   {
     "id": 1,
-    "username": "user1",
-    "password": "password123",
-    "email": "user1@example.com",
+    "username": "Татьяна",
+    "password": "Bonia525",
+    "email": "none",
     "role": "user",
-    "createdAt": "2024-01-01"
+    "createdAt": "02.01.2026"
   },
   {
     "id": 2,
-    "username": "user2",
-    "password": "password456",
-    "email": "user2@example.com",
+    "username": "Рома",
+    "password": "Bonia777",
+    "email": "none",
     "role": "user",
-    "createdAt": "2024-01-02"
+    "createdAt": "02.01.2026"
   },
   {
     "id": 3,
@@ -21,6 +21,6 @@
     "password": "Bonia525#",
     "email": "admin@schedule.ru",
     "role": "admin",
-    "createdAt": "2024-01-01"
+    "createdAt": "00.00.0000"
   }
 ]
