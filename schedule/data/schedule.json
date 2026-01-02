@@ -42,5 +42,15 @@
     "description": "Подготовка отчетов",
     "important": false,
     "forAll": false
+  },
+  {
+    "id": 5,
+    "title": "https://artem5251.github.io/schedule/data/schedule.json id=5:title",
+    "date": "1978-01-01",
+    "time": "00:00",
+    "type": "event",
+    "description": "https://artem5251.github.io/schedule/data/schedule.json id=5:description",
+    "important": true,
+    "forAll": true
   }
 ]
