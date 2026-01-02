@@ -5,7 +5,6 @@
     "password": "Bonia525",
     "email": "none",
     "role": "user",
-    "createdAt": "2026-02-01"
   },
   {
     "id": 2,
@@ -13,7 +12,6 @@
     "password": "Bonia777",
     "email": "none",
     "role": "user",
-    "createdAt": "2026-02-01"
   },
   {
     "id": 3,
@@ -21,6 +19,5 @@
     "password": "Bonia525#",
     "email": "admin@schedule.ru",
     "role": "admin",
-    "createdAt": "0000-00-00"
   }
 ]
