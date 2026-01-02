@@ -56,7 +56,7 @@
                         </button>
                         <div class="auth-footer">
                             <p>Есть ошибки скоро исправим</p>
-                            <p style="margin-top: 5px; font-size: 12px;">     </p>
+                            <p class="admin-hint">     </p>
                         </div>
                     </div>
 
@@ -96,16 +96,14 @@
                         </button>
                         <div class="auth-footer">
                             <p>При регистрации данные отправляются в Telegram</p>
-                            <p style="margin-top: 5px; font-size: 12px; color: var(--warning);">
-                                После регистрации войдите с вашими данными
-                            </p>
+                            <p class="warning-text">После регистрации войдите с вашими данными</p>
                         </div>
                     </div>
                 </div>
 
                 <div class="info-box">
                     <h3><i class="fas fa-info-circle"></i> О системе</h3>
-                    <ul>
+                    <ul class="info-list">
                         <li><i class="fas fa-check"></i> Просмотр расписания</li>
                         <li><i class="fas fa-check"></i> Тёмный интерфейс</li>
                         <li><i class="fas fa-check"></i> Telegram уведомления</li>
@@ -140,7 +138,7 @@
             <div class="main-header">
                 <h2><i class="fas fa-calendar-day"></i> Мое расписание</h2>
                 <!-- Кнопка видна только админу (скрыта по умолчанию) -->
-                <button id="addEventBtn" class="btn btn-primary" style="display: none;">
+                <button id="addEventBtn" class="btn btn-primary admin-only">
                     <i class="fas fa-plus"></i> Добавить событие
                 </button>
             </div>
@@ -154,13 +152,13 @@
                 <h3>Расписание пусто</h3>
                 <p>Обратитесь к администратору для добавления событий</p>
                 <!-- Кнопка видна только админу (скрыта по умолчанию) -->
-                <button id="addFirstEventBtn" class="btn btn-primary" style="display: none;">
+                <button id="addFirstEventBtn" class="btn btn-primary admin-only">
                     <i class="fas fa-plus"></i> Добавить событие
                 </button>
             </div>
 
-            <!-- Модальное окно добавления события (только для админа, скрыто для обычных пользователей) -->
-            <div id="eventModal" class="modal" style="display: none;">
+            <!-- Модальное окно добавления события (только для админа) -->
+            <div id="eventModal" class="modal admin-only">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h3><i class="fas fa-calendar-plus"></i> Новое событие</h3>
@@ -170,28 +168,28 @@
                         <form id="eventForm">
                             <div class="form-group">
                                 <label for="eventTitle">Название события</label>
-                                <input type="text" id="eventTitle" required>
+                                <input type="text" id="eventTitle" class="form-input" required>
                             </div>
                             <div class="form-row">
                                 <div class="form-group">
                                     <label for="eventDate">Дата</label>
-                                    <input type="date" id="eventDate" required>
+                                    <input type="date" id="eventDate" class="form-input" required>
                                 </div>
                                 <div class="form-group">
                                     <label for="eventTime">Время</label>
-                                    <input type="time" id="eventTime" required>
+                                    <input type="time" id="eventTime" class="form-input" required>
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label for="eventUser">Пользователь</label>
-                                <select id="eventUser" required>
+                                <select id="eventUser" class="form-input" required>
                                     <option value="">Выберите пользователя</option>
                                     <!-- Список пользователей загрузится динамически -->
                                 </select>
                             </div>
                             <div class="form-group">
                                 <label for="eventType">Тип события</label>
-                                <select id="eventType">
+                                <select id="eventType" class="form-input">
                                     <option value="meeting">Встреча</option>
                                     <option value="task">Задача</option>
                                     <option value="reminder">Напоминание</option>
@@ -200,7 +198,7 @@
                             </div>
                             <div class="form-group">
                                 <label for="eventDescription">Описание</label>
-                                <textarea id="eventDescription" rows="3"></textarea>
+                                <textarea id="eventDescription" class="form-input" rows="3"></textarea>
                             </div>
                             <div class="form-group">
                                 <label class="checkbox">
@@ -256,111 +254,5 @@
 
     <!-- Ссылка на скрипт -->
     <script src="script.js"></script>
-    
-    <style>
-        .user-info-panel {
-            background: var(--bg-card);
-            border-radius: 15px;
-            padding: 25px;
-            margin-top: 40px;
-            border: 1px solid var(--border);
-        }
-
-        .user-info-panel h3 {
-            margin-bottom: 20px;
-            color: var(--primary);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .info-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-        }
-
-        .info-item {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            padding: 15px;
-            background: var(--bg-card-light);
-            border-radius: 10px;
-            transition: all 0.3s;
-        }
-
-        .info-item:hover {
-            transform: translateY(-2px);
-            border-color: var(--primary);
-        }
-
-        .info-item i {
-            font-size: 24px;
-            color: var(--primary);
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: rgba(124, 58, 237, 0.1);
-            border-radius: 8px;
-        }
-
-        .info-item div {
-            flex: 1;
-        }
-
-        .info-item strong {
-            display: block;
-            font-size: 20px;
-            color: var(--text);
-        }
-
-        .info-item small {
-            color: var(--text-secondary);
-            font-size: 12px;
-        }
-
-        /* Стили для админских элементов */
-        .admin-only {
-            display: none !important;
-        }
-
-        .admin-only.show {
-            display: flex !important;
-        }
-
-        .user-role-badge {
-            display: inline-block;
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: 600;
-            margin-left: 10px;
-        }
-
-        .user-role-badge.user {
-            background: rgba(59, 130, 246, 0.1);
-            color: var(--info);
-        }
-
-        .user-role-badge.admin {
-            background: rgba(124, 58, 237, 0.1);
-            color: var(--primary);
-        }
-
-        @media (max-width: 768px) {
-            .info-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-
-        @media (max-width: 480px) {
-            .info-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
 </body>
 </html>
