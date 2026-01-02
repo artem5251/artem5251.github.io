@@ -29,7 +29,7 @@
     "type": "meeting",
     "description": "Личная встреча с руководителем",
     "important": false,
-    "forAll": false
+    "forAll": true
   },
   {
     "id": 4,
