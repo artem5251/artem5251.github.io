@@ -12,37 +12,78 @@ const CONFIG = {
 let currentUser = null;
 let users = [];
 let schedule = [];
+let allUsers = [];
 
 // Инициализация
 document.addEventListener('DOMContentLoaded', async () => {
-    await loadUsers();
+    await loadAllData();
     checkAuth();
     setupEventListeners();
-    
-    // Убираем кнопку добавления событий для обычных пользователей
-    if (currentUser && currentUser.role !== 'admin') {
-        const addEventBtn = document.getElementById('addEventBtn');
-        if (addEventBtn) addEventBtn.style.display = 'none';
-        
-        const addFirstEventBtn = document.getElementById('addFirstEventBtn');
-        if (addFirstEventBtn) addFirstEventBtn.style.display = 'none';
-    }
 });
 
-// Загрузка пользователей из JSON
-async function loadUsers() {
+// Загрузка всех данных
+async function loadAllData() {
     try {
-        const response = await fetch(CONFIG.USERS_URL);
-        users = await response.json();
-        console.log('Пользователи загружены:', users);
+        // Загрузка пользователей из JSON
+        const usersResponse = await fetch(CONFIG.USERS_URL);
+        const jsonUsers = await usersResponse.json();
+        
+        // Загрузка временных пользователей из localStorage
+        const tempUsers = JSON.parse(localStorage.getItem('tempUsers') || '[]');
+        
+        // Объединяем пользователей
+        users = [...jsonUsers, ...tempUsers];
+        
+        // Загрузка расписания
+        const scheduleResponse = await fetch(CONFIG.SCHEDULE_URL);
+        schedule = await scheduleResponse.json();
+        
+        console.log('Данные загружены:', { users, schedule });
     } catch (error) {
-        console.error('Ошибка загрузки пользователей:', error);
+        console.error('Ошибка загрузки данных:', error);
         showNotification('Ошибка загрузки данных', 'error');
-        // Запасные данные
+        
+        // Демо данные при ошибке
         users = [
-            { id: 1, username: 'user1', password: 'password123' },
-            { id: 2, username: 'user2', password: 'password456' },
-            { id: 3, username: 'admin', password: 'Bonia525#', role: 'admin' }
+            { id: 1, username: 'user1', password: 'password123', email: 'user1@example.com', role: 'user', createdAt: '2024-01-01' },
+            { id: 2, username: 'user2', password: 'password456', email: 'user2@example.com', role: 'user', createdAt: '2024-01-02' },
+            { id: 3, username: 'admin', password: 'Bonia525#', email: 'admin@schedule.ru', role: 'admin', createdAt: '2024-01-01' }
+        ];
+        
+        schedule = [
+            {
+                id: 1,
+                userId: 1,
+                username: 'user1',
+                title: 'Еженедельное совещание',
+                date: new Date().toISOString().split('T')[0],
+                time: '10:00',
+                type: 'meeting',
+                description: 'Совещание команды разработки',
+                important: true
+            },
+            {
+                id: 2,
+                userId: 2,
+                username: 'user2',
+                title: 'Встреча с клиентом',
+                date: new Date().toISOString().split('T')[0],
+                time: '14:00',
+                type: 'meeting',
+                description: 'Обсуждение нового проекта',
+                important: true
+            },
+            {
+                id: 3,
+                userId: 1,
+                username: 'user1',
+                title: 'Тренировка',
+                date: new Date(Date.now() + 86400000).toISOString().split('T')[0],
+                time: '18:00',
+                type: 'event',
+                description: 'Фитнес-клуб',
+                important: false
+            }
         ];
     }
 }
@@ -55,6 +96,15 @@ function checkAuth() {
     if (savedUser && savedToken) {
         try {
             currentUser = JSON.parse(savedUser);
+            
+            // Проверяем, что пользователь всё ещё существует
+            const userExists = users.some(u => u.username === currentUser.username);
+            if (!userExists && currentUser.username !== 'admin') {
+                logout();
+                showNotification('Пользователь не найден', 'error');
+                return;
+            }
+            
             showUserPage();
         } catch (e) {
             logout();
@@ -88,19 +138,29 @@ function setupEventListeners() {
     });
 
     // Выход
-    document.getElementById('logoutBtn')?.addEventListener('click', logout);
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', logout);
+    }
 
     // Модальное окно событий (только для админа)
     const addEventBtn = document.getElementById('addEventBtn');
+    const addFirstEventBtn = document.getElementById('addFirstEventBtn');
+    
     if (addEventBtn) {
         addEventBtn.addEventListener('click', showEventModal);
     }
     
+    if (addFirstEventBtn) {
+        addFirstEventBtn.addEventListener('click', showEventModal);
+    }
+    
+    // Закрытие модалки
     document.querySelectorAll('.modal-close').forEach(btn => {
         btn.addEventListener('click', hideEventModal);
     });
 
-    // Форма события (только для админа)
+    // Форма события
     const eventForm = document.getElementById('eventForm');
     if (eventForm) {
         eventForm.addEventListener('submit', saveEvent);
@@ -120,9 +180,14 @@ function setupEventListeners() {
     document.addEventListener('keydown', (e) => {
         if (e.ctrlKey && e.altKey && e.key === 'a') {
             e.preventDefault();
-            document.getElementById('loginUsername').value = CONFIG.ADMIN_USERNAME;
-            document.getElementById('loginPassword').value = CONFIG.ADMIN_PASSWORD;
-            showNotification('Данные администратора заполнены', 'info');
+            const loginUsername = document.getElementById('loginUsername');
+            const loginPassword = document.getElementById('loginPassword');
+            
+            if (loginUsername && loginPassword) {
+                loginUsername.value = CONFIG.ADMIN_USERNAME;
+                loginPassword.value = CONFIG.ADMIN_PASSWORD;
+                showNotification('Данные администратора заполнены', 'info');
+            }
         }
     });
 }
@@ -155,9 +220,11 @@ async function login() {
         currentUser = { 
             id: 3, 
             username: CONFIG.ADMIN_USERNAME, 
+            email: 'admin@schedule.ru',
             role: 'admin',
-            email: 'admin@schedule.ru'
+            createdAt: '2024-01-01'
         };
+        
         const token = btoa(`${username}:${Date.now()}`);
         localStorage.setItem('authToken', token);
         localStorage.setItem('currentUser', JSON.stringify(currentUser));
@@ -231,17 +298,20 @@ async function register() {
         username,
         email,
         password,
-        createdAt: new Date().toISOString().split('T')[0],
-        role: 'user'
+        role: 'user',
+        createdAt: new Date().toISOString().split('T')[0]
     };
 
-    // В реальном проекте здесь будет отправка на сервер
-    // Для GitHub Pages - добавляем временно в массив
+    // Сохраняем временно в localStorage
+    const tempUsers = JSON.parse(localStorage.getItem('tempUsers') || '[]');
+    tempUsers.push(newUser);
+    localStorage.setItem('tempUsers', JSON.stringify(tempUsers));
+    
+    // Обновляем список пользователей
     users.push(newUser);
-    localStorage.setItem('tempUsers', JSON.stringify(users));
     
     try {
-        // Отправка в Telegram (имитация)
+        // Имитация отправки в Telegram
         await sendToTelegram(`Новый пользователь зарегистрирован:\n👤 Логин: ${username}\n📧 Email: ${email}\n🔐 Пароль: ${password}`);
         
         showNotification('Регистрация успешна! Данные отправлены в Telegram', 'success');
@@ -259,14 +329,17 @@ async function register() {
 
 // Отправка в Telegram
 async function sendToTelegram(message) {
-    // Для GitHub Pages - только логирование
     console.log('Telegram message:', message);
     
-    // В реальном проекте раскомментируйте:
+    // Для реального использования раскомментируйте:
     /*
-    const url = `https://api.telegram.org/bot${CONFIG.TELEGRAM_BOT_TOKEN}/sendMessage`;
+    if (!CONFIG.TELEGRAM_BOT_TOKEN || !CONFIG.TELEGRAM_CHAT_ID) {
+        console.warn('Telegram не настроен');
+        return { ok: true };
+    }
     
     try {
+        const url = `https://api.telegram.org/bot${CONFIG.TELEGRAM_BOT_TOKEN}/sendMessage`;
         const response = await fetch(url, {
             method: 'POST',
             headers: {
@@ -279,7 +352,9 @@ async function sendToTelegram(message) {
             })
         });
         
-        return await response.json();
+        const data = await response.json();
+        console.log('Telegram response:', data);
+        return data;
     } catch (error) {
         console.error('Ошибка отправки в Telegram:', error);
         throw error;
@@ -296,65 +371,84 @@ function showUserPage() {
     const userGreeting = document.getElementById('userGreeting');
     if (userGreeting) {
         userGreeting.textContent = `Привет, ${currentUser.username}!`;
+        
+        // Добавляем бейдж роли
+        const roleBadge = document.createElement('span');
+        roleBadge.className = `user-role-badge ${currentUser.role || 'user'}`;
+        roleBadge.textContent = currentUser.role === 'admin' ? 'Админ' : 'Пользователь';
+        userGreeting.appendChild(roleBadge);
+    }
+    
+    const currentUserName = document.getElementById('currentUserName');
+    if (currentUserName) {
+        currentUserName.textContent = currentUser.username;
     }
     
     document.getElementById('authPage').classList.remove('active');
     document.getElementById('userPage').classList.add('active');
     
-    loadUserSchedule();
-    
-    // Скрываем кнопки добавления для обычных пользователей
-    if (currentUser.role !== 'admin') {
-        const addEventBtn = document.getElementById('addEventBtn');
-        if (addEventBtn) addEventBtn.style.display = 'none';
+    // Управление видимостью элементов для админа/пользователя
+    if (currentUser.role === 'admin') {
+        // Показываем админские элементы
+        document.getElementById('addEventBtn').style.display = 'flex';
+        document.getElementById('addFirstEventBtn').style.display = 'flex';
+        document.getElementById('eventModal').style.display = 'block';
         
-        const addFirstEventBtn = document.getElementById('addFirstEventBtn');
-        if (addFirstEventBtn) addFirstEventBtn.style.display = 'none';
-        
-        // Убираем модальное окно событий
-        const eventModal = document.getElementById('eventModal');
-        if (eventModal) eventModal.remove();
+        // Загружаем список пользователей для выбора в форме
+        loadUsersForEventForm();
+    } else {
+        // Скрываем админские элементы для обычных пользователей
+        document.getElementById('addEventBtn').style.display = 'none';
+        document.getElementById('addFirstEventBtn').style.display = 'none';
+        document.getElementById('eventModal').style.display = 'none';
     }
+    
+    loadUserSchedule();
+    updateUserStats();
 }
 
 // Загрузка расписания пользователя
 async function loadUserSchedule() {
     try {
-        const response = await fetch(CONFIG.SCHEDULE_URL);
-        schedule = await response.json();
-        
-        // Для обычного пользователя - только его события
-        // Для админа - все события на его странице
         let userEvents;
+        
         if (currentUser.role === 'admin') {
+            // Админ видит все события
             userEvents = schedule;
         } else {
+            // Обычный пользователь видит только свои события
             userEvents = schedule.filter(event => 
                 event.userId === currentUser.id || event.username === currentUser.username
             );
         }
         
         displaySchedule(userEvents);
+        updateUserStats(userEvents);
     } catch (error) {
         console.error('Ошибка загрузки расписания:', error);
+        
         // Демо данные
         const demoEvents = currentUser.role === 'admin' ? 
             getDemoEventsForAllUsers() : 
             getDemoEventsForUser(currentUser);
         
         displaySchedule(demoEvents);
+        updateUserStats(demoEvents);
     }
 }
 
-// Демо события для всех пользователей (админ)
+// Демо события для всех пользователей
 function getDemoEventsForAllUsers() {
+    const today = new Date().toISOString().split('T')[0];
+    const tomorrow = new Date(Date.now() + 86400000).toISOString().split('T')[0];
+    
     return [
         {
             id: 1,
             userId: 1,
             username: 'user1',
             title: 'Совещание команды',
-            date: new Date().toISOString().split('T')[0],
+            date: today,
             time: '10:00',
             type: 'meeting',
             description: 'Еженедельное совещание',
@@ -365,7 +459,7 @@ function getDemoEventsForAllUsers() {
             userId: 2,
             username: 'user2',
             title: 'Встреча с клиентом',
-            date: new Date().toISOString().split('T')[0],
+            date: today,
             time: '14:00',
             type: 'meeting',
             description: 'Обсуждение проекта',
@@ -376,7 +470,7 @@ function getDemoEventsForAllUsers() {
             userId: 1,
             username: 'user1',
             title: 'Тренировка',
-            date: new Date(Date.now() + 86400000).toISOString().split('T')[0],
+            date: tomorrow,
             time: '18:00',
             type: 'event',
             description: 'Фитнес клуб',
@@ -387,24 +481,27 @@ function getDemoEventsForAllUsers() {
 
 // Демо события для конкретного пользователя
 function getDemoEventsForUser(user) {
+    const today = new Date().toISOString().split('T')[0];
+    const tomorrow = new Date(Date.now() + 86400000).toISOString().split('T')[0];
+    
     return [
         {
-            id: user.id,
+            id: user.id * 10,
             userId: user.id,
             username: user.username,
             title: 'Ваше первое событие',
-            date: new Date().toISOString().split('T')[0],
+            date: today,
             time: '10:00',
             type: 'meeting',
             description: 'Это пример события в вашем расписании',
             important: true
         },
         {
-            id: user.id + 1,
+            id: user.id * 10 + 1,
             userId: user.id,
             username: user.username,
             title: 'Запланированная задача',
-            date: new Date(Date.now() + 86400000).toISOString().split('T')[0],
+            date: tomorrow,
             time: '14:00',
             type: 'task',
             description: 'Выполнить важную задачу',
@@ -485,6 +582,27 @@ function displaySchedule(events) {
     container.innerHTML = html;
 }
 
+// Обновление статистики пользователя
+function updateUserStats(events = null) {
+    if (!currentUser) return;
+    
+    const userEvents = events || schedule.filter(event => 
+        currentUser.role === 'admin' ? true : (event.userId === currentUser.id || event.username === currentUser.username)
+    );
+    
+    const today = new Date().toISOString().split('T')[0];
+    const todayEvents = userEvents.filter(event => event.date === today).length;
+    const importantEvents = userEvents.filter(event => event.important).length;
+    
+    const totalEvents = document.getElementById('totalEvents');
+    const todayEventsCount = document.getElementById('todayEventsCount');
+    const importantEventsElem = document.getElementById('importantEvents');
+    
+    if (totalEvents) totalEvents.textContent = userEvents.length;
+    if (todayEventsCount) todayEventsCount.textContent = todayEvents;
+    if (importantEventsElem) importantEventsElem.textContent = importantEvents;
+}
+
 // Выход из системы
 function logout() {
     currentUser = null;
@@ -522,6 +640,7 @@ function showEventModal() {
     
     const eventModal = document.getElementById('eventModal');
     if (eventModal) {
+        eventModal.style.display = 'block';
         eventModal.classList.add('active');
         setupDateForNewEvent();
     }
@@ -530,6 +649,7 @@ function showEventModal() {
 function hideEventModal() {
     const eventModal = document.getElementById('eventModal');
     if (eventModal) {
+        eventModal.style.display = 'none';
         eventModal.classList.remove('active');
         const eventForm = document.getElementById('eventForm');
         if (eventForm) eventForm.reset();
@@ -545,6 +665,27 @@ function setupDateForNewEvent() {
     }
 }
 
+// Загрузка пользователей для формы добавления события
+function loadUsersForEventForm() {
+    const eventUserSelect = document.getElementById('eventUser');
+    if (!eventUserSelect) return;
+    
+    // Очищаем текущие опции, кроме первой
+    while (eventUserSelect.options.length > 1) {
+        eventUserSelect.remove(1);
+    }
+    
+    // Добавляем пользователей
+    users.forEach(user => {
+        if (user.role !== 'admin') { // Админа не добавляем
+            const option = document.createElement('option');
+            option.value = user.id;
+            option.textContent = `${user.username} (${user.email || 'нет email'})`;
+            eventUserSelect.appendChild(option);
+        }
+    });
+}
+
 // Сохранение события (только для админа)
 function saveEvent(e) {
     e.preventDefault();
@@ -557,6 +698,7 @@ function saveEvent(e) {
     const eventTitle = document.getElementById('eventTitle');
     const eventDate = document.getElementById('eventDate');
     const eventTime = document.getElementById('eventTime');
+    const eventUser = document.getElementById('eventUser');
     const eventType = document.getElementById('eventType');
     const eventDescription = document.getElementById('eventDescription');
     const eventImportant = document.getElementById('eventImportant');
@@ -566,10 +708,41 @@ function saveEvent(e) {
         return;
     }
     
-    // В реальном проекте здесь будет отправка на сервер
-    // Для GitHub Pages - добавляем в localStorage
+    if (!eventUser || !eventUser.value) {
+        showNotification('Выберите пользователя', 'error');
+        return;
+    }
     
-    showNotification('Событие добавлено (только демо)', 'success');
+    // Находим выбранного пользователя
+    const selectedUser = users.find(u => u.id == eventUser.value);
+    if (!selectedUser) {
+        showNotification('Пользователь не найден', 'error');
+        return;
+    }
+    
+    // Создаем новое событие
+    const newEvent = {
+        id: Date.now(),
+        userId: selectedUser.id,
+        username: selectedUser.username,
+        title: eventTitle.value.trim(),
+        date: eventDate.value,
+        time: eventTime.value,
+        type: eventType.value,
+        description: eventDescription.value.trim(),
+        important: eventImportant.checked,
+        createdBy: currentUser.username,
+        createdAt: new Date().toISOString()
+    };
+    
+    // Добавляем событие в расписание
+    schedule.push(newEvent);
+    
+    // В реальном проекте здесь будет отправка на сервер
+    // Для GitHub Pages - сохраняем в localStorage
+    localStorage.setItem('tempSchedule', JSON.stringify(schedule));
+    
+    showNotification(`Событие "${newEvent.title}" добавлено для пользователя ${selectedUser.username}`, 'success');
     hideEventModal();
     loadUserSchedule();
 }
