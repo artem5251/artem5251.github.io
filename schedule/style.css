@@ -26,6 +26,7 @@ body {
     color: var(--text);
     line-height: 1.6;
     min-height: 100vh;
+    overflow-x: hidden;
 }
 
 .container {
@@ -58,6 +59,7 @@ body {
     display: none;
     animation: slideIn 0.3s ease;
     max-width: 400px;
+    word-break: break-word;
 }
 
 .notification.success {
@@ -116,6 +118,7 @@ body {
     -webkit-text-fill-color: transparent;
     background-clip: text;
     margin-bottom: 10px;
+    word-break: break-word;
 }
 
 .tagline {
@@ -267,6 +270,7 @@ select:focus {
     align-items: center;
     justify-content: center;
     gap: 10px;
+    white-space: nowrap;
 }
 
 .btn-primary {
@@ -421,6 +425,7 @@ header {
     padding: 25px;
     border: 1px solid var(--border);
     transition: all 0.3s;
+    overflow: hidden;
 }
 
 .day-card:hover {
@@ -432,21 +437,25 @@ header {
 .day-header {
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-start;
     margin-bottom: 20px;
     padding-bottom: 15px;
     border-bottom: 1px solid var(--border-light);
+    flex-wrap: wrap;
+    gap: 10px;
 }
 
 .day-title {
     font-size: 20px;
     font-weight: 700;
     color: var(--primary);
+    word-break: break-word;
 }
 
 .day-date {
     color: var(--text-secondary);
     font-size: 14px;
+    margin-top: 4px;
 }
 
 .event-count {
@@ -455,6 +464,7 @@ header {
     background: var(--bg-card-light);
     padding: 4px 12px;
     border-radius: 20px;
+    white-space: nowrap;
 }
 
 .events-list {
@@ -469,6 +479,7 @@ header {
     border-left: 4px solid var(--primary);
     transition: all 0.3s;
     cursor: pointer;
+    overflow: hidden;
 }
 
 .event-item:hover {
@@ -485,12 +496,25 @@ header {
     justify-content: space-between;
     align-items: flex-start;
     margin-bottom: 10px;
+    flex-wrap: wrap;
+    gap: 10px;
 }
 
 .event-title {
     font-weight: 600;
     color: var(--text);
     flex: 1;
+    min-width: 0;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
+}
+
+.event-time-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
 }
 
 .event-time {
@@ -500,21 +524,15 @@ header {
     border-radius: 20px;
     font-size: 12px;
     font-weight: 600;
+    white-space: nowrap;
 }
 
-.event-type {
+.event-type-badge {
     font-size: 12px;
     color: var(--text-secondary);
+    margin: 5px 0;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    margin: 5px 0;
-}
-
-.event-description {
-    color: var(--text-secondary);
-    font-size: 14px;
-    margin-top: 10px;
-    line-height: 1.5;
 }
 
 /* Стили для событий "для всех" */
@@ -523,9 +541,18 @@ header {
     color: var(--info);
     padding: 2px 8px;
     border-radius: 10px;
-    font-size: 12px;
+    font-size: 12px !important;
     font-weight: 600;
-    margin-right: 10px;
+    white-space: nowrap;
+}
+
+.event-description {
+    color: var(--text-secondary);
+    font-size: 14px;
+    margin-top: 10px;
+    line-height: 1.5;
+    word-break: break-word;
+    overflow-wrap: break-word;
 }
 
 /* Пустое состояние */
@@ -559,6 +586,8 @@ header {
     margin-bottom: 40px;
     padding-bottom: 20px;
     border-bottom: 2px solid var(--border);
+    flex-wrap: wrap;
+    gap: 20px;
 }
 
 .admin-header h1 {
@@ -568,6 +597,7 @@ header {
     font-size: 32px;
     color: var(--primary);
     margin: 0;
+    word-break: break-word;
 }
 
 .admin-subtitle {
@@ -579,6 +609,7 @@ header {
     display: flex;
     gap: 15px;
     align-items: center;
+    flex-wrap: wrap;
 }
 
 /* Статистика */
@@ -687,11 +718,11 @@ header {
 }
 
 /* События список в админке */
-.events-list {
+.admin-events-list {
     margin-top: 20px;
 }
 
-.event-item {
+.admin-event-item {
     background: var(--bg-card-light);
     border-radius: 10px;
     padding: 15px;
@@ -699,24 +730,28 @@ header {
     border-left: 4px solid var(--primary);
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 15px;
 }
 
-.event-item.important {
+.admin-event-item.important {
     border-left-color: var(--danger);
 }
 
-.event-info {
+.admin-event-info {
     flex: 1;
+    min-width: 0;
 }
 
-.event-title {
+.admin-event-title {
     font-weight: 600;
     color: var(--text);
     margin-bottom: 5px;
+    word-break: break-word;
 }
 
-.event-meta {
+.admin-event-meta {
     font-size: 14px;
     color: var(--text-secondary);
 }
@@ -726,16 +761,18 @@ header {
     font-weight: 600;
 }
 
-.event-description {
+.admin-event-description {
     font-size: 14px;
     color: var(--text-secondary);
     margin-top: 8px;
     line-height: 1.5;
+    word-break: break-word;
 }
 
-.event-actions {
+.admin-event-actions {
     display: flex;
     gap: 10px;
+    flex-shrink: 0;
 }
 
 .btn-icon {
@@ -746,6 +783,7 @@ header {
     padding: 8px;
     border-radius: 6px;
     transition: all 0.3s;
+    flex-shrink: 0;
 }
 
 .btn-icon:hover {
@@ -817,16 +855,19 @@ header {
     justify-content: center;
     background: rgba(124, 58, 237, 0.1);
     border-radius: 8px;
+    flex-shrink: 0;
 }
 
 .info-item div {
     flex: 1;
+    min-width: 0;
 }
 
 .info-item strong {
     display: block;
     font-size: 20px;
     color: var(--text);
+    word-break: break-word;
 }
 
 .info-item small {
@@ -851,6 +892,7 @@ header {
     font-size: 12px;
     font-weight: 600;
     margin-left: 10px;
+    white-space: nowrap;
 }
 
 .user-role-badge.user {
@@ -1006,6 +1048,16 @@ header {
     .btn {
         width: 100%;
     }
+    
+    .event-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .event-time-container {
+        width: 100%;
+        justify-content: flex-start;
+    }
 }
 
 @media (max-width: 480px) {
@@ -1018,6 +1070,19 @@ header {
         grid-template-columns: 30px 1fr 1fr 70px;
         padding: 12px 8px;
         font-size: 12px;
+    }
+    
+    .day-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .event-count {
+        align-self: flex-start;
+    }
+    
+    .auth-form h2 {
+        font-size: 24px;
     }
 }
 
@@ -1045,4 +1110,35 @@ header {
 
 @keyframes spin {
     to { transform: rotate(360deg); }
+}
+
+/* Фиксы для предотвращения съезжания */
+* {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+}
+
+h1, h2, h3, h4, h5, h6, p, span, div {
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    hyphens: auto;
+}
+
+input, textarea, select, button {
+    font-family: inherit;
+    font-size: inherit;
+}
+
+/* Фикс для Flexbox контейнеров */
+.flex-container {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+}
+
+/* Фикс для длинного текста */
+.long-text-fix {
+    word-break: break-word;
+    overflow-wrap: anywhere;
 }
