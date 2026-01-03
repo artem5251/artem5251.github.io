@@ -32,12 +32,14 @@
   },
   {
     "id": 4,
-    "title": " Бешеная Джози!!!",
+    "userId": 5,
+    "username": "Dima",
+    "title": "Бешеная Джози!!!",
     "date": "2026-01-03",
     "time": "время не известно",
     "type": "other",
     "description": "Тип: редкое",
     "important": true,
-    "forAll": true
+    "forAll": false
   }
 ]
