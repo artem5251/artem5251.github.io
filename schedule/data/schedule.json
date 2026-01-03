@@ -29,5 +29,15 @@
     "description": "Просто веселье",
     "important": false,
     "forAll": true
+  },
+  {
+    "id": 4,
+    "title": " Бешеная Джози!!!",
+    "date": "2026-01-03",
+    "time": "время не известно",
+    "type": "other",
+    "description": "Тип: редкое",
+    "important": true,
+    "forAll": true
   }
 ]
