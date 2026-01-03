@@ -33,5 +33,12 @@
     "password": "5520",
     "email": "none",
     "role": "user"
+  },
+  {
+    "id": 6,
+    "username": "Artem",
+    "password": "Bonia525@",
+    "email": "Zimnikovar525@gmail.com",
+    "role": "user"
   }
 ]
