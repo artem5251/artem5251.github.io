@@ -1,56 +1,12 @@
 [
   {
     "id": 1,
-    "title": "Общее собрание",
-    "date": "2024-12-25",
-    "time": "10:00",
-    "type": "meeting",
-    "description": "Еженедельное собрание для всех сотрудников",
-    "important": true,
-    "forAll": true
-  },
-  {
-    "id": 2,
-    "title": "Корпоративное мероприятие",
-    "date": "2024-12-28",
-    "time": "18:00",
+    "title": "Кинотеатр и дискотека!",
+    "date": "2026-03-01",
+    "time": "18:30",
     "type": "event",
-    "description": "Новогодний корпоратив",
-    "important": true,
-    "forAll": true
-  },
-  {
-    "id": 3,
-    "userId": 1,
-    "username": "Татьяна",
-    "title": "Индивидуальная встреча",
-    "date": "2024-12-26",
-    "time": "11:00",
-    "type": "meeting",
-    "description": "Личная встреча с руководителем",
+    "description": "Кинотеатр и дискотека под навесом",
     "important": false,
-    "forAll": true
-  },
-  {
-    "id": 4,
-    "userId": 2,
-    "username": "Рома",
-    "title": "Работа с документами",
-    "date": "2024-12-27",
-    "time": "15:00",
-    "type": "task",
-    "description": "Подготовка отчетов",
-    "important": false,
-    "forAll": false
-  },
-  {
-    "id": 5,
-    "title": "https://artem5251.github.io/schedule/data/schedule.json id=5:title",
-    "date": "1978-01-01",
-    "time": "00:00",
-    "type": "event",
-    "description": "https://artem5251.github.io/schedule/data/schedule.json id=5:description",
-    "important": true,
     "forAll": true
   }
 ]
