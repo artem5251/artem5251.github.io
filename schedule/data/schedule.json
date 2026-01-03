@@ -1,12 +1,33 @@
+
 [
   {
     "id": 1,
+    "title": "Веселье!",
+    "date": "2026-01-03",
+    "time": "18:30-19:30",
+    "type": "event",
+    "description": "Просто веселье",
+    "important": false,
+    "forAll": true
+  },
+  {
+    "id": 2,
     "title": "Кинотеатр и дискотека!",
     "date": "2026-01-03",
     "time": "18:30-19:30",
     "type": "event",
     "description": "Кинотеатр и дискотека под навесом",
     "important": true,
+    "forAll": true
+  },
+  {
+    "id": 3,
+    "title": "Веселье!",
+    "date": "2026-01-03",
+    "time": "00:00-18:30",
+    "type": "event",
+    "description": "Просто веселье",
+    "important": false,
     "forAll": true
   }
 ]
