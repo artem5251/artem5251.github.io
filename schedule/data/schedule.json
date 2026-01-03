@@ -11,7 +11,7 @@
   },
   {
     "id": 2,
-    "title": "Кинотеатр и дискотека!",
+    "title": "Кинотеатр и дискотека! (ОТМЕНЕНО)",
     "date": "2026-01-03",
     "time": "18:30-19:30",
     "type": "event",
@@ -33,47 +33,11 @@
     "id": 4,
     "userId": 5,
     "username": "Dima",
-    "title": "Бешеная Джози!!!",
+    "title": "Бешеная Джози!!! (ОТМЕНЕНО)",
     "date": "2026-01-03",
     "time": "время не известно",
     "type": "other",
     "description": "Тип: редкое",
-    "important": true,
-    "forAll": false
-  },
-  {
-    "id": 5,
-    "userId": 6,
-    "username": "Artem",
-    "title": "лаб. блок питания",
-    "date": "2026-01-03",
-    "time": "примерно 15:00-19:30",
-    "type": "other",
-    "description": "забрать лаб. блок питания на озоне",
-    "important": true,
-    "forAll": false
-  },
-  {
-    "id": 6,
-    "userId": 2,
-    "username": "Roman",
-    "title": "лаб. блок питания",
-    "date": "2026-01-03",
-    "time": "примерно 15:00-19:30",
-    "type": "other",
-    "description": "забрать лаб. блок питания на озоне",
-    "important": true,
-    "forAll": false
-  },
-  {
-    "id": 7,
-    "userId": 3,
-    "username": "Admin",
-    "title": "лаб. блок питания",
-    "date": "2026-01-03",
-    "time": "примерно 15:00-19:30",
-    "type": "other",
-    "description": "забрать лаб. блок питания на озоне",
     "important": true,
     "forAll": false
   }
