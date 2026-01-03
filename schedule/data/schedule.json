@@ -41,5 +41,17 @@
     "description": "Тип: редкое",
     "important": true,
     "forAll": false
+  },
+  {
+    "id": 5,
+    "userIds": [3, 6, 2],
+    "usernames": ["Artem", "Roman", "Admin"],
+    "title": "лаб. блок питания",
+    "date": "2026-01-03",
+    "time": "примерно 15:00-19:30",
+    "type": "other",
+    "description": "забрать лаб. блок питания на озоне",
+    "important": true,
+    "forAll": false
   }
 ]
