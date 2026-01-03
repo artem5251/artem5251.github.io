@@ -26,5 +26,12 @@
     "password": "8267268",
     "email": "none",
     "role": "user"
+  },
+  {
+    "id": 5,
+    "username": "Dima",
+    "password": "5520",
+    "email": "none",
+    "role": "user"
   }
 ]
