@@ -1,44 +1,5 @@
 [
   {
-    "id": 1,
-    "title": "Веселье!",
-    "date": "2026-01-03",
-    "time": "00:00-18:30",
-    "type": "other",
-    "description": "Просто веселье",
-    "important": false,
-    "forAll": true
-  },
-  {
-    "id": 2,
-    "title": "Кинотеатр и дискотека! (ОТМЕНЕНО)",
-    "date": "2026-01-03",
-    "time": "18:30-19:30",
-    "type": "event",
-    "description": "Кинотеатр и дискотека под навесом",
-    "important": true,
-    "forAll": true
-  },
-  {
-    "id": 3,
-    "title": "Веселье!",
-    "date": "2026-01-03",
-    "time": "19:30-23:59",
-    "type": "other",
-    "description": "Просто веселье",
-    "important": false,
-    "forAll": true
-  },
-  {
-    "id": 4,
-    "userId": 5,
-    "username": "Dima",
-    "title": "Бешеная Джози!!! (ОТМЕНЕНО)",
-    "date": "2026-01-03",
-    "time": "время не известно",
-    "type": "other",
-    "description": "Тип: редкое",
-    "important": true,
-    "forAll": false
+
   }
 ]
