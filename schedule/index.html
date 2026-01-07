@@ -379,23 +379,11 @@
                         id: 1,
                         title: "Расписание либо отсутствует либо ошибка загрузки данных",
                         date: new Date().toISOString().split('T')[0],
-                        time: "10:00",
-                        type: "meeting",
+                        time: new Date().toISOString().slice(11, 19),
+                        type: "other",
                         description: "Расписание либо отсутствует либо ошибка загрузки данных",
                         important: true,
                         forAll: true
-                    },
-                    {
-                        id: 2,
-                        userId: currentUser.id,
-                        username: currentUser.username,
-                        title: "Расписание либо отсутствует либо ошибка загрузки данных",
-                        date: new Date().toISOString().split('T')[0],
-                        time: "14:00",
-                        type: "task",
-                        description: "Расписание либо отсутствует либо ошибка загрузки данных",
-                        important: false,
-                        forAll: false
                     }
                 ];
                 displaySchedule(demoEvents);
