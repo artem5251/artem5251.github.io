@@ -378,12 +378,24 @@
                     {
                         id: 1,
                         title: "Расписание либо отсутствует либо ошибка загрузки данных",
-                        date: index.html:[const demoEvents] Date:,
+                        date: new Date().toISOString().split('T')[0],
                         time: "10:00",
                         type: "meeting",
                         description: "Расписание либо отсутствует либо ошибка загрузки данных",
                         important: true,
                         forAll: true
+                    },
+                    {
+                        id: 2,
+                        userId: currentUser.id,
+                        username: currentUser.username,
+                        title: "Расписание либо отсутствует либо ошибка загрузки данных",
+                        date: new Date().toISOString().split('T')[0],
+                        time: "14:00",
+                        type: "task",
+                        description: "Расписание либо отсутствует либо ошибка загрузки данных",
+                        important: false,
+                        forAll: false
                     }
                 ];
                 displaySchedule(demoEvents);
