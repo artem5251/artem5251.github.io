@@ -376,26 +376,7 @@
                 // Демо данные
                 const demoEvents = [
                     {
-                        id: 1,
-                        title: "Общее собрание",
-                        date: new Date().toISOString().split('T')[0],
-                        time: "10:00",
-                        type: "meeting",
-                        description: "Для всех сотрудников",
-                        important: true,
-                        forAll: true
-                    },
-                    {
-                        id: 2,
-                        userId: currentUser.id,
-                        username: currentUser.username,
-                        title: "Ваше событие",
-                        date: new Date().toISOString().split('T')[0],
-                        time: "14:00",
-                        type: "task",
-                        description: "Персональная задача",
-                        important: false,
-                        forAll: false
+
                     }
                 ];
                 displaySchedule(demoEvents);
