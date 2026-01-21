@@ -1,1 +1,15 @@
+[
+  {
+    "id": 1,
+    "userId": 7,
+    "username": "pi",
+    "title": "выйти из дома ",
+    "date": "2026-01-22",
+    "time": "7:50",
+    "type": "other",
+    "description": "Выйти из дома в школу",
+    "important": true,
+    "forAll": false
 
+  }
+]
