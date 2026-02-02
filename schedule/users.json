@@ -47,5 +47,12 @@
     "password": "rasb",
     "email": "Rasberry_pi_5",
     "role": "user"
+  },
+  {
+    "id": 8,
+    "username": "pelmen",
+    "password": "675242",
+    "email": "none",
+    "role": "user"
   }
 ]
