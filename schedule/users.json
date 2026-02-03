@@ -54,5 +54,12 @@
     "password": "675242",
     "email": "none",
     "role": "user"
+  },
+  {
+    "id": 9,
+    "username": "Ronaldo",
+    "password": "Pinaldo",
+    "email": "none",
+    "role": "user"
   }
 ]
